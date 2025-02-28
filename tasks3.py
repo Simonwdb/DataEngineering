@@ -16,7 +16,7 @@ def verify_distances():
     # Compare the disatance from Pim to the distance in db
     return
 
-"""For each flight, the origin from which it leaves can be fount in the variable
+"""For each flight, the origin from which it leaves can be found in the variable
 origin in the table flights. Identify all diﬀerent airports in NYC from
 which flights depart and save a DataFrame contain the information about those
 airports from airports"""
@@ -100,21 +100,40 @@ def distance_vs_delay(conn):
 compute the average speed by taking the average of the distance divided by flight
 time over all flights of that model. Use this information to fill the column speed
 in the table planes."""
-def fill_speed(conn):
-    # Group the table flights by plane model
-    # Compute the average speed
-    # Fill the column speed in the table planes
-    query = """
-    SELECT tailnum, AVG(distance * 1.0 / air_time) AS avg_speed
-    FROM flights
-    WHERE air_time > 0
-    GROUP BY tailnum
-    """
-    cursor = conn.cursor()
-    speed = cursor.fetchall()
-    
-    return
+import sqlite3
 
+
+def fill_speed(conn):
+    """
+    Computes the average speed for each plane model using flights data and
+    updates the 'speed' column in the planes table.
+    """
+    query = """
+    SELECT f.tailnum, p.model, AVG(f.distance * 1.0 / (f.air_time / 60)) AS avg_speed
+    FROM flights f
+    JOIN planes p ON f.tailnum = p.tailnum
+    WHERE f.air_time > 0
+    GROUP BY f.tailnum, p.model
+    """
+
+    cursor = conn.cursor()
+    cursor.execute(query)
+    speeds = cursor.fetchall()  # List of (tailnum, model, avg_speed)
+
+    # Update the planes table with computed speed
+    update_query = """
+    UPDATE planes
+    SET speed = ?
+    WHERE tailnum = ?
+    """
+
+    for tailnum, model, avg_speed in speeds:
+        cursor.execute(update_query, (avg_speed, tailnum))
+
+    conn.commit()  # Save changes to database
+    print("Updated plane speeds successfully.")
+
+    return
 
 """The wind direction is given in weather in degrees. Compute for each airport
 the direction the plane follows when flying there from New York."""
