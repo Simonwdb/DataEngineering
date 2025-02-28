@@ -10,7 +10,7 @@ def get_connection(db_path="./Data/flights_database.db"):
 
 def main():
     print("Here we call the functions from the points described in the functions folder/file")
-    plot_airports_map()
+    fill_speed(get_connection())
 
 if __name__ == "__main__":
     main()
