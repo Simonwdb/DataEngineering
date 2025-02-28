@@ -58,6 +58,7 @@ def delayed_flights(months, destination):
     # Get the amount of delayed flights to the destination
     # Return the amount
     return
+
 """Write a function that takes a destination airport as input and returns the top 5
 airplane manufacturers with planes departing to this destination. For this task,
 you have to combine data from flights and planes."""
@@ -111,7 +112,7 @@ def fill_speed(conn):
     """
     cursor = conn.cursor()
     speed = cursor.fetchall()
-
+    
     return
 
 
