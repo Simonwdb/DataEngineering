@@ -10,11 +10,7 @@ def get_connection(db_path="./Data/flights_database.db"):
 
 def main():
     print("Here we call the functions from the points described in the functions folder/file")
-    ATL = distance_vs_delay(get_connection())
-    print(ATL)
-
-    plot_airport_routes_plotly(["AAF", "AAP"])
-    plot_airport_routes_plotly(["TZR", "AAP", "AAF"])
+    plot_airports_map()
 
 if __name__ == "__main__":
     main()

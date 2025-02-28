@@ -4,11 +4,12 @@ import plotly.graph_objects as go
 
 df = pd.read_csv('Data/airports.csv')
 
-def plot_airports_map(airports):
+def plot_airports_map():
     """
     Plots a world map with points indicating the airports.
     """
-    return px.scatter_geo(df, lat="lat", lon="lon",  color="alt", projection="natural earth")
+    fig = px.scatter_geo(df, lat="lat", lon="lon",  color="alt", projection="natural earth")
+    return fig.show()
 
 def plot_airports_by_region(airports):
     """
