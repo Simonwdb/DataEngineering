@@ -13,7 +13,7 @@ tances in the variable distance in the table flights. If they are much oﬀ,
 recall that latitude and longitude represent angles expressed in degrees, while the
 functions sin and cos expects entries in radial angles."""
 
-def verify_distances():
+def verify_distances(flights_df, airports_df):
     """
     Verifies that the distances computed in part 1 (geodetisch vanaf JFK) are roughly equal
     to the recorded flight distances in the flights table.
@@ -79,7 +79,7 @@ def verify_distances():
 origin in the table flights. Identify all diﬀerent airports in NYC from
 which flights depart and save a DataFrame contain the information about those
 airports from airports"""
-def airports_in_nyc():
+def airports_in_nyc(flights_df, airports_df):
     """
     Identifies all different NYC airports from which flights depart by:
       - Extracting the unique origin codes from the flights DataFrame (flights_df)
@@ -100,7 +100,7 @@ def airports_in_nyc():
 """Write a function that takes a month and day and an airport in NYC as input,
 and produces a figure similar to the one from part 1 containing all destinations
 of flights on that day."""
-def plot_destinations(month, day, origin_airport):
+def plot_destinations(month, day, origin_airport, flights_df, airports_df):
     """
     Produces a figure containing all destination airports for flights on a given month and day
     from the specified NYC airport.
@@ -143,9 +143,10 @@ def plot_destinations(month, day, origin_airport):
                          projection="natural earth")
     
     return fig
+    
 """Also write a function that returns statistics for that day, i.e. how many flights,
 how many unique destinations, which destination is visited most often, etc."""
-def get_statistics(month, day, airport):
+def get_statistics(month, day, airport, flights_df):
     """
     Returns statistics for flights departing from a given NYC airport on a specified day.
     
