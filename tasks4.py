@@ -1,5 +1,6 @@
-import pandas as pd
 import sqlite3
+import pandas as pd
+import numpy as np
 from datetime import datetime
 
 # importing the flights data from the database
