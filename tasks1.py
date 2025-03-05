@@ -113,9 +113,41 @@ def compute_geodesic_distances(airports):
     """
     pass
 
-def plot_timezones(airports):
+def plot_timezones():
     """
     Analyzes different time zones and represents the relative number of flights to them.
     """
-    # test
-    pass
+    df["timezone"] = pd.to_numeric(df["tz"], errors='coerce')
+
+    min_tz, max_tz = int(df["timezone"].min()), int(df["timezone"].max())
+    all_time_zones = pd.DataFrame({"Time Zone": list(range(min_tz, max_tz + 1))})
+
+    time_zone_counts = df["timezone"].value_counts().reset_index()
+    time_zone_counts.columns = ["Time Zone", "Number of Airports"]
+
+    time_zone_counts = all_time_zones.merge(time_zone_counts, on="Time Zone", how="left").fillna(0)
+
+    time_zone_counts["Number of Airports"] = time_zone_counts["Number of Airports"].astype(int)
+
+    time_zone_counts = time_zone_counts.sort_values("Time Zone")
+
+    fig = px.bar(time_zone_counts, x="Time Zone", y="Number of Airports",
+             title="Distribution of Airports by Time Zone",
+             labels={"Time Zone": "Time Zone (UTC Offset)", "Number of Airports": "Count"},
+             text_auto=True,  
+             color="Number of Airports", color_continuous_scale="Viridis")
+
+
+    fig.update_layout(xaxis=dict(tickmode='array', tickvals=list(range(min_tz, max_tz + 1))))
+
+    return fig.show()
+
+def plot_airport_altitude_distribution():
+    """
+    Plots distribution of airport frequency vs its altitude
+    """
+    fig = px.histogram(df, x="alt", nbins=50, 
+                   title="Distribution of Airport Altitudes",
+                   labels={"alt": "Altitude (ft)", "Airport frequency": "Number of Airports"})
+
+    return fig.show()
