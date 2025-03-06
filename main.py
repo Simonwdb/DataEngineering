@@ -8,8 +8,11 @@ def get_connection(db_path="./Data/flights_database.db"):
     print("Connection to SQLite DB successful")
     return conn
 
+# making the conn as a global variable
+conn = get_connection()
+
 # Returning a dataframe from a given query
-def get_dataframe(conn, query):
+def get_dataframe(query):
     cursor = conn.cursor()
     cursor.execute(query)
     data_rows = cursor.fetchall()
