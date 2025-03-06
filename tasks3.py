@@ -64,6 +64,24 @@ def get_plane_types(origin, destination):
 
     return result_dict
 
+def get_plane_model_counts(origin, destination):
+    query_model_counts = '''
+    SELECT p.manufacturer || ' ' || p.model AS plane_model, COUNT(*) as count
+    FROM flights AS f
+    JOIN planes AS p ON f.tailnum = p.tailnum
+    WHERE f.origin = ? AND f.dest = ?
+    GROUP BY plane_model
+    ORDER BY count DESC
+    '''
+    
+    cursor = conn.cursor()
+    cursor.execute(query_model_counts, (origin, destination))
+    data = cursor.fetchall()
+    df = pd.DataFrame(data, columns=[x[0] for x in cursor.description])
+    result_dict = dict(zip(df['plane_model'], df['count']))
+    
+    return result_dict
+
 """Compute the average departure delay per flight for each of the airlines. Visualize
 the results in a barplot with the full (rotated) names of the airlines on the x-axis."""
 def average_delay_per_airline():
