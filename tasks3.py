@@ -4,6 +4,8 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
+from main import *
+
 def test():
     print("Testing the functions from the tasks3.py file")
 
@@ -43,10 +45,25 @@ def get_statistics(month, day, airport):
 a dict describing how many times each plane type was used for that flight
 trajectory. For this task you will need to match the columns tailnum to type
 in the table planes and match this to the tailnum s in the table flights."""
-def plane_types(origin, destination):
+def get_plane_types(origin, destination):
     # Get the plane types for the flight trajectory
     # Return the dict
-    return
+    query_type_counts = '''
+    SELECT p.type, COUNT(*) as count 
+    FROM flights as f
+    JOIN planes as p ON f.tailnum = p.tailnum
+    WHERE f.origin = ? AND f.dest = ?
+    GROUP BY p.type
+    ORDER BY count DESC
+    '''
+    cursor = conn.cursor()
+    cursor.execute(query_type_counts, (origin, destination))
+    data = cursor.fetchall()
+    df = pd.DataFrame(data, columns=[x[0] for x in cursor.description])
+    result_dict = dict(zip(df['type'], df['count']))
+
+    return result_dict
+
 """Compute the average departure delay per flight for each of the airlines. Visualize
 the results in a barplot with the full (rotated) names of the airlines on the x-axis."""
 def average_delay_per_airline():
