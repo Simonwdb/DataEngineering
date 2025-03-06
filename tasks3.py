@@ -20,7 +20,7 @@ def verify_distances():
 origin in the table flights. Identify all diﬀerent airports in NYC from
 which flights depart and save a DataFrame contain the information about those
 airports from airports"""
-def airports_in_nyc(conn, flights_df, airports_df):
+def airports_in_nyc(flights_df, airports_df):
     # Get the airports in NYC from the flights table
     # Get the information about those airports from the airports table
     # Save the information in a DataFrame
