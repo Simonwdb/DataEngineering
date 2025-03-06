@@ -90,7 +90,7 @@ def average_delay_per_airline():
     return
 """Write a function that takes as input a range of months and a destination and
 returns the amount of delayed flights to that destination."""
-def delayed_flights(months, destination):
+def get_delayed_flights(months, destination):
     # Get the amount of delayed flights to the destination
     # Return the amount
     return
