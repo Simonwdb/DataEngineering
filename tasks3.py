@@ -90,10 +90,15 @@ def average_delay_per_airline():
     return
 """Write a function that takes as input a range of months and a destination and
 returns the amount of delayed flights to that destination."""
-def get_delayed_flights(months, destination):
+def get_delayed_flights(flights_df, months, destination):
     # Get the amount of delayed flights to the destination
     # Return the amount
-    return
+    delayed_flights = flights_df[
+        flights_df['month'].isin(months) & 
+        (flights_df['dest'] == destination) & 
+        (flights_df['arr_delay'] > 0)
+    ]
+    return len(delayed_flights)
 
 """Write a function that takes a destination airport as input and returns the top 5
 airplane manufacturers with planes departing to this destination. For this task,
