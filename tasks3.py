@@ -3,6 +3,7 @@ import sqlite3
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import plotly.express as px
 
 from main import conn
 
@@ -84,10 +85,28 @@ def get_plane_model_counts(origin, destination):
 
 """Compute the average departure delay per flight for each of the airlines. Visualize
 the results in a barplot with the full (rotated) names of the airlines on the x-axis."""
-def average_delay_per_airline():
+def average_delay_per_airline(flights_df):
     # Compute the average departure delay per flight for each airline
     # Visualize the results in a barplot
-    return
+    avg_delay_df = flights_df.groupby('carrier', as_index=False)['dep_delay'].mean()
+    avg_delay_df.rename(columns={'dep_delay': 'avg_dep_delay'}, inplace=True)
+    avg_delay_df['avg_dep_delay'] = avg_delay_df['avg_dep_delay'].round(2)
+    
+    fig = px.bar(
+        avg_delay_df,
+        x='carrier',
+        y='avg_dep_delay',
+        title='Average Departure Delay per Airline',
+        labels={'avg_dep_delay': 'Average Departure Delay (minutes)', 'carrier': 'Airline'},
+    )
+
+    fig.update_layout(
+        xaxis={'categoryorder':'total descending'},
+        uniformtext_minsize=8,
+        uniformtext_mode='hide'
+    )
+    # ASK: do we need to return the figure or do we need to use fig.show() in this function?
+    return fig
 """Write a function that takes as input a range of months and a destination and
 returns the amount of delayed flights to that destination."""
 def get_delayed_flights(flights_df, months, destination):
