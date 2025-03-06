@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
-from main import *
+from main import conn
 
 def test():
     print("Testing the functions from the tasks3.py file")
