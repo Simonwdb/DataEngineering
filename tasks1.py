@@ -11,12 +11,22 @@ def plot_airports_map():
     fig = px.scatter_geo(df, lat="lat", lon="lon",  color="alt", projection="natural earth")
     return fig.show()
 
-def plot_airports_by_region(airports):
+def plot_airports_by_region(airport_df):
     """
     Identifies airports outside of the US and creates a separate US-only map.
     Also color codes airports by altitude.
     """
-    pass
+    america_df = airport_df[airport_df['tzone'].str.startswith('America')]
+    fig = px.scatter_geo(
+        america_df,
+        lat='lat',
+        lon='lon',
+        hover_name='name',
+        scope='usa',
+        color='alt'
+    )
+    return fig.show()
+    
 
 def is_american_faa(faa_code):
     """
