@@ -1,24 +1,19 @@
-import pandas as pd
-import plotly.express as px
-import plotly.graph_objects as go
-import numpy as np
-import matplotlib.pyplot as plt
+from utilities import *
 
-df = pd.read_csv('Data/airports.csv')
 
-def plot_airports_map():
+def plot_airports_map(airports_df):
     """
     Plots a world map with points indicating the airports.
     """
-    fig = px.scatter_geo(df, lat="lat", lon="lon",  color="alt", projection="natural earth")
+    fig = px.scatter_geo(airports_df, lat="lat", lon="lon",  color="alt", projection="natural earth")
     return fig.show()
 
-def plot_airports_by_region(airport_df):
+def plot_airports_by_region(airports_df):
     """
     Identifies airports outside of the US and creates a separate US-only map.
     Also color codes airports by altitude.
     """
-    america_df = airport_df[airport_df['tzone'].str.startswith('America')]
+    america_df = airports_df[airports_df['tzone'].str.startswith('America')]
     fig = px.scatter_geo(
         america_df,
         lat='lat',
@@ -30,12 +25,12 @@ def plot_airports_by_region(airport_df):
     return fig.show()
     
 
-def is_american_faa(faa_code):
+def is_american_faa(faa_code, airports_df):
     """
     Not in the pdf but helper function to check if the airport is in America
     """
     # Filter the DataFrame for the given FAA code
-    airport_row = df[df['faa'] == faa_code]
+    airport_row = airports_df[airports_df['faa'] == faa_code]
 
     if airport_row.empty:
         print(f"FAA code {faa_code} not found in the dataset.")
@@ -47,7 +42,7 @@ def is_american_faa(faa_code):
     # Check if the timezone starts with "America/"
     return airport_tz.startswith("America/")
 
-def plot_flight_from_nyc(faa_codes):
+def plot_flight_from_nyc(faa_codes, airports_df):
     """
     Plots a world map with a line from NYC (JFK) to the specified airport.
     """
@@ -59,7 +54,7 @@ def plot_flight_from_nyc(faa_codes):
     nyc_lat, nyc_lon = 40.7128, -74.0060
 
     # Filter the DataFrame for the selected airports (assuming your DataFrame is named `df`)
-    df_selected = df[df["faa"].isin(faa_codes)]
+    df_selected = airports_df[airports_df["faa"].isin(faa_codes)]
 
     if df_selected.empty:
         print("No matching FAA codes found.")
@@ -114,7 +109,7 @@ def plot_flight_from_nyc(faa_codes):
     return fig.show()
 
 
-def compute_euclidean_distances(airports):
+def compute_euclidean_distances(airports_df):
     """
     Computes the Euclidean distance from JFK to each airport in the provided DataFrame,
     visualizes the distribution as a histogram, and returns a new DataFrame with the computed distances.
@@ -130,7 +125,7 @@ def compute_euclidean_distances(airports):
                       Only rows with a realistic distance (<= 180°) are returned.
     """
     # Zoek naar de rij voor "John F Kennedy International Airport"
-    jfk_row = airports[airports['name'].str.contains("John F Kennedy International Airport", 
+    jfk_row = airports_df[airports_df['name'].str.contains("John F Kennedy International Airport", 
                                                        case=False, na=False)]
     if jfk_row.empty:
         raise ValueError("JFK airport not found in the dataset!")
@@ -141,7 +136,7 @@ def compute_euclidean_distances(airports):
         print(f"JFK Position: lat = {jfk_lat_deg}, lon = {jfk_lon_deg}")
     
     # Werk met een kopie zodat de originele DataFrame niet wordt aangepast
-    airports_copy = airports.copy()
+    airports_copy = airports_df.copy()
     
     # Bereken de Euclidische afstand in graden vanaf JFK
     airports_copy['euclidean_distance_deg'] = np.sqrt(
@@ -168,7 +163,7 @@ def compute_euclidean_distances(airports):
 
 
 
-def compute_geodesic_distances(airports):
+def compute_geodesic_distances(airports_df):
     """
     Computes the geodesic distance from JFK to each airport in the provided DataFrame,
     visualizes the distribution as a histogram, and returns a new DataFrame with the computed distances.
@@ -183,7 +178,7 @@ def compute_geodesic_distances(airports):
                       Only rows with realistic distances (<= 20000 km) are returned.
     """
     # Zoek naar JFK in de dataset
-    jfk_row = airports[airports['name'].str.contains("John F Kennedy International Airport", case=False, na=False)]
+    jfk_row = airports_df[airports_df['name'].str.contains("John F Kennedy International Airport", case=False, na=False)]
     if jfk_row.empty:
         raise ValueError("JFK airport not found in the dataset!")
     else:
@@ -193,7 +188,7 @@ def compute_geodesic_distances(airports):
         print(f"JFK Position: lat = {jfk_lat_deg}, lon = {jfk_lon_deg}")
     
     # Maak een kopie zodat de originele DataFrame niet wordt aangepast
-    airports_copy = airports.copy()
+    airports_copy = airports_df.copy()
     
     # Aardstraal in kilometers
     R = 6371
@@ -230,7 +225,7 @@ def compute_geodesic_distances(airports):
     
     return filtered_airports
 
-def plot_timezones(airports):
+def plot_timezones(airports_df):
     """
     Analyzes different time zones and represents the relative number of flights to them.
     """
