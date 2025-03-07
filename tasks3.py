@@ -3,7 +3,6 @@ import sqlite3
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import plotly.express as px
 
 def test():
     print("Testing the functions from the tasks3.py file")
@@ -79,6 +78,12 @@ def verify_distances(flights_df, airports_df):
 origin in the table flights. Identify all diﬀerent airports in NYC from
 which flights depart and save a DataFrame contain the information about those
 airports from airports"""
+def airports_in_nyc(flights_df, airports_df):
+    # Get the airports in NYC from the flights table
+    # Get the information about those airports from the airports table
+    # Save the information in a DataFrame
+    return airports_df[airports_df['faa'].isin(flights_df['origin'].unique())]
+
 def airports_in_nyc(flights_df, airports_df):
     """
     Identifies all different NYC airports from which flights depart by:
@@ -195,22 +200,78 @@ def get_statistics(month, day, airport, flights_df):
 a dict describing how many times each plane type was used for that flight
 trajectory. For this task you will need to match the columns tailnum to type
 in the table planes and match this to the tailnum s in the table flights."""
-def plane_types(origin, destination):
+def get_plane_types(origin, destination):
     # Get the plane types for the flight trajectory
     # Return the dict
-    return
+    query_type_counts = '''
+    SELECT p.type, COUNT(*) as count 
+    FROM flights as f
+    JOIN planes as p ON f.tailnum = p.tailnum
+    WHERE f.origin = ? AND f.dest = ?
+    GROUP BY p.type
+    ORDER BY count DESC
+    '''
+    cursor = conn.cursor()
+    cursor.execute(query_type_counts, (origin, destination))
+    data = cursor.fetchall()
+    df = pd.DataFrame(data, columns=[x[0] for x in cursor.description])
+    result_dict = dict(zip(df['type'], df['count']))
+
+    return result_dict
+
+def get_plane_model_counts(origin, destination):
+    query_model_counts = '''
+    SELECT p.manufacturer || ' ' || p.model AS plane_model, COUNT(*) as count
+    FROM flights AS f
+    JOIN planes AS p ON f.tailnum = p.tailnum
+    WHERE f.origin = ? AND f.dest = ?
+    GROUP BY plane_model
+    ORDER BY count DESC
+    '''
+    
+    cursor = conn.cursor()
+    cursor.execute(query_model_counts, (origin, destination))
+    data = cursor.fetchall()
+    df = pd.DataFrame(data, columns=[x[0] for x in cursor.description])
+    result_dict = dict(zip(df['plane_model'], df['count']))
+    
+    return result_dict
+
 """Compute the average departure delay per flight for each of the airlines. Visualize
 the results in a barplot with the full (rotated) names of the airlines on the x-axis."""
-def average_delay_per_airline():
+def average_delay_per_airline(flights_df):
     # Compute the average departure delay per flight for each airline
     # Visualize the results in a barplot
-    return
+    avg_delay_df = flights_df.groupby('carrier', as_index=False)['dep_delay'].mean()
+    avg_delay_df.rename(columns={'dep_delay': 'avg_dep_delay'}, inplace=True)
+    avg_delay_df['avg_dep_delay'] = avg_delay_df['avg_dep_delay'].round(2)
+    
+    fig = px.bar(
+        avg_delay_df,
+        x='carrier',
+        y='avg_dep_delay',
+        title='Average Departure Delay per Airline',
+        labels={'avg_dep_delay': 'Average Departure Delay (minutes)', 'carrier': 'Airline'},
+    )
+
+    fig.update_layout(
+        xaxis={'categoryorder':'total descending'},
+        uniformtext_minsize=8,
+        uniformtext_mode='hide'
+    )
+    # ASK: do we need to return the figure or do we need to use fig.show() in this function?
+    return fig
 """Write a function that takes as input a range of months and a destination and
 returns the amount of delayed flights to that destination."""
-def delayed_flights(months, destination):
+def get_delayed_flights(flights_df, months, destination):
     # Get the amount of delayed flights to the destination
     # Return the amount
-    return
+    delayed_flights = flights_df[
+        flights_df['month'].isin(months) & 
+        (flights_df['dest'] == destination) & 
+        (flights_df['arr_delay'] > 0)
+    ]
+    return len(delayed_flights)
 
 """Write a function that takes a destination airport as input and returns the top 5
 airplane manufacturers with planes departing to this destination. For this task,
