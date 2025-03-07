@@ -1,8 +1,6 @@
-import math
-import sqlite3
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
+from utilities import *
+
+data_class = Data()
 
 def test():
     print("Testing the functions from the tasks3.py file")
@@ -211,7 +209,7 @@ def get_plane_types(origin, destination):
     GROUP BY p.type
     ORDER BY count DESC
     '''
-    cursor = conn.cursor()
+    cursor = data_class.conn.cursor()
     cursor.execute(query_type_counts, (origin, destination))
     data = cursor.fetchall()
     df = pd.DataFrame(data, columns=[x[0] for x in cursor.description])
@@ -229,7 +227,7 @@ def get_plane_model_counts(origin, destination):
     ORDER BY count DESC
     '''
     
-    cursor = conn.cursor()
+    cursor = data_class.conn.cursor()
     cursor.execute(query_model_counts, (origin, destination))
     data = cursor.fetchall()
     df = pd.DataFrame(data, columns=[x[0] for x in cursor.description])
