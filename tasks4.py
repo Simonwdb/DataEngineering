@@ -74,11 +74,12 @@ def calculate_delays(flights_df):
 
 # A second check if the arr_date and dep_date need to be shifted an extra day. Because there are currently delays with e.g. -1100 minutes, i.e. this could mean that the arr_date and dep_date need to be shifted one day extra
 
-dep_delay_mask2 = flights_df['dep_date_delay'] <= -600  # self chosen threshold
-arr_delay_mask2 = flights_df['arr_date_delay'] <= -600  # self chosen threshold
+def adjust_negative_delays(flights_df, threshold=-600):
+    dep_delay_mask2 = flights_df['dep_date_delay'] <= threshold
+    arr_delay_mask2 = flights_df['arr_date_delay'] <= threshold
 
-flights_df.loc[dep_delay_mask2, 'dep_date'] = flights_df.loc[dep_delay_mask2, 'dep_date'] + pd.Timedelta(days=1)
-flights_df.loc[arr_delay_mask2, 'arr_date'] = flights_df.loc[arr_delay_mask2, 'arr_date'] + pd.Timedelta(days=1)
+    flights_df.loc[dep_delay_mask2, 'dep_date'] += pd.Timedelta(days=1)
+    flights_df.loc[arr_delay_mask2, 'arr_date'] += pd.Timedelta(days=1)
 
 flights_df['dep_date_delay'] = (flights_df['dep_date'] - flights_df['sched_dep_date']) / pd.Timedelta(minutes=1)
 flights_df['arr_date_delay'] = (flights_df['arr_date'] - flights_df['sched_arr_date']) / pd.Timedelta(minutes=1)
