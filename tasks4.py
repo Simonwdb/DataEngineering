@@ -128,6 +128,12 @@ So that could be seen as gross air_time. The positive difference between the giv
 We will use taxi_time as a statistic in our dashboard.
 '''
 
+def calculate_block_and_taxi_time(flights_df):
+    flights_df['block_time'] = (flights_df['arr_date_gmt5'] - flights_df['dep_date']) / pd.Timedelta(minutes=1)
+    flights_df['taxi_time'] = np.nan
+    block_mask = flights_df['block_time'] > flights_df['air_time']
+    flights_df.loc[block_mask, 'taxi_time'] = flights_df['block_time'] - flights_df['air_time']
+
 """
 In addition, information on the different types of planes and airlines will be
 important. Consider studying what the effect of the wind or precipitation is on
