@@ -48,29 +48,19 @@ def convert_time_columns(flights_df):
     for col in convert_cols:
         convert_time(col)
 
-# Shifting the arr_date and sched_arr_date one day up, when dep_date is greater than arr_date
-# because it is not yet invented: time travelling
-flights_df.loc[flights_df['dep_date'] > flights_df['arr_date'], ['arr_date', 'sched_arr_date']] = flights_df.loc[
-                                                                                                      flights_df[
-                                                                                                          'dep_date'] >
-                                                                                                      flights_df[
-                                                                                                          'arr_date'], [
-                                                                                                          'arr_date',
-                                                                                                          'sched_arr_date']] + pd.Timedelta(
-    days=1)
+def adjust_flight_dates(flights_df):
+    # Correction for time travel: increase arr_date and sched_arr_date by 1 day if dep_date > arr_date
+    time_travel_mask = flights_df['dep_date'] > flights_df['arr_date']
+    flights_df.loc[time_travel_mask, ['arr_date', 'sched_arr_date']] += pd.Timedelta(days=1)
 
-date_mask = flights_df['dep_date'] < datetime(year=2023, month=1, day=1, hour=5, minute=00)
+    # Mask for flights before January 1, 2023 at 05:00
+    date_mask = flights_df['dep_date'] < datetime(year=2023, month=1, day=1, hour=5, minute=0)
 
-# Departure dates
-# The same principle hold for the flights where the dataset starts, e.g. sched_dep_time is 2023-01-01 20:38, it is probably not departing on 2023-01-01 00:01, so we shift in those cases a day down
-flights_df.loc[(date_mask) & (flights_df['dep_date'] < flights_df['sched_dep_date']), 'sched_dep_date'] = \
-flights_df.loc[(date_mask) & (flights_df['dep_date'] < flights_df['sched_dep_date']), 'sched_dep_date'] - pd.Timedelta(
-    days=1)
+    # Correction for scheduled departure dates: decrease sched_dep_date by 1 day if dep_date < sched_dep_date
+    flights_df.loc[(date_mask) & (flights_df['dep_date'] < flights_df['sched_dep_date']), 'sched_dep_date'] -= pd.Timedelta(days=1)
 
-# Arrival dates as well
-flights_df.loc[(date_mask) & (flights_df['arr_date'] < flights_df['sched_arr_date']), 'sched_arr_date'] = \
-flights_df.loc[(date_mask) & (flights_df['arr_date'] < flights_df['sched_arr_date']), 'sched_arr_date'] - pd.Timedelta(
-    days=1)
+    # Correction for scheduled arrival dates: decrease sched_arr_date by 1 day if arr_date < sched_arr_date
+    flights_df.loc[(date_mask) & (flights_df['arr_date'] < flights_df['sched_arr_date']), 'sched_arr_date'] -= pd.Timedelta(days=1)
 
 """
 Write a function that checks whether the data in flights is in order. That
