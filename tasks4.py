@@ -80,6 +80,7 @@ def adjust_negative_delays(flights_df, threshold=-600):
 
     flights_df.loc[dep_delay_mask2, 'dep_date'] += pd.Timedelta(days=1)
     flights_df.loc[arr_delay_mask2, 'arr_date'] += pd.Timedelta(days=1)
+    calculate_delays(flights_df)
 
 flights_df['dep_date_delay'] = (flights_df['dep_date'] - flights_df['sched_dep_date']) / pd.Timedelta(minutes=1)
 flights_df['arr_date_delay'] = (flights_df['arr_date'] - flights_df['sched_arr_date']) / pd.Timedelta(minutes=1)
