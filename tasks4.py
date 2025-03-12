@@ -47,8 +47,6 @@ def convert_time_columns(flights_df):
     
     for col in convert_cols:
         convert_time(col)
-    
-    return flights_df
 
 # Shifting the arr_date and sched_arr_date one day up, when dep_date is greater than arr_date
 # because it is not yet invented: time travelling
