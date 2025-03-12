@@ -20,6 +20,10 @@ number can occur multiple times, only count it as duplicate when the same flight
 appears multiple times.
 """
 
+def remove_duplicates(flights_df):
+    unique_columns = ['year', 'month', 'day', 'flight', 'dep_time', 'arr_time', 'origin', 'dest']
+    flights_df.drop_duplicates(subset=unique_columns, keep='first', inplace=True)
+    
 """
 Convert the (schedueled and actual) arrival departure and departure moments
 to datetime objects.
