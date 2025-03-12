@@ -104,6 +104,23 @@ def merge_timezone_info(flights_df, airports_df):
     
     return flights_df
 
+def convert_arr_date_to_gmt5(flights_df):
+    def tz_to_tz_string(tz):
+        if pd.isna(tz):
+            return None
+        if tz < 0:
+            return f'Etc/GMT+{abs(int(tz))}'
+        else:
+            return f'Etc/GMT-{int(tz)}'
+
+    for tz, indices in flights_df.groupby('dest_tz').groups.items():
+        if pd.isna(tz):
+            continue
+        localized_date = flights_df.loc[indices, 'arr_date'].dt.tz_localize(tz_to_tz_string(tz))
+        flights_df.loc[indices, 'arr_date_gmt5'] = localized_date.dt.tz_convert('Etc/GMT+5')
+
+    flights_df['arr_date_gmt5'] = flights_df['arr_date_gmt5'].dt.tz_localize(None)
+
 """
 In addition, information on the different types of planes and airlines will be
 important. Consider studying what the effect of the wind or precipitation is on
