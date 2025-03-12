@@ -20,6 +20,8 @@ query_weather = '''SELECT * from weather'''
 weather_df = data_class.get_dataframe(query_weather)
 
 # Perform some data wrangling on the flights_df
+flights_df = remove_nan_values(flights_df)
+remove_duplicates(flights_df)
 convert_time_columns(flights_df)
 adjust_flight_dates(flights_df)
 calculate_delays(flights_df)
