@@ -11,7 +11,7 @@ from datetime import datetime
 
 class Data:
     def __init__(self):
-        self.dp_path = "./Data/flights_database.db"
+        self.db_path = "./Data/flights_database.db"
         self.make_connection()
 
     def make_connection(self):
