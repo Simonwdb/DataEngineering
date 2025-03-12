@@ -30,6 +30,7 @@ flights_df = merge_timezone_info(flights_df, airports_df)
 
 convert_arr_date_to_gmt5(flights_df)
 calculate_block_and_taxi_time(flights_df)
+# After this block the flights_df is ready to use as visualization or stastical dataframe 
 
 
 def main():
