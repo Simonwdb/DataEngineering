@@ -24,24 +24,31 @@ appears multiple times.
 Convert the (schedueled and actual) arrival departure and departure moments
 to datetime objects.
 """
-convert_cols = ['dep_time', 'sched_dep_time', 'arr_time', 'sched_arr_time']
-
-
-def convert_time(col):
-    new_col = col.replace('time', 'date')
-    bool_mask = flights_df[col].notna()
-    flights_df[new_col] = np.nan
-    flights_df.loc[bool_mask, new_col] = flights_df.loc[bool_mask, col].astype(int).astype(str).str.zfill(4)
-    flights_df[new_col] = pd.to_datetime(flights_df['year'].astype(str) + '-' +
-                                         flights_df['month'].astype(str) + '-' +
-                                         flights_df['day'].astype(str) + ' ' +
-                                         flights_df[new_col].str[:2] + ':' +
-                                         flights_df[new_col].str[2:],
-                                         format='%Y-%m-%d %H:%M', errors='coerce')
-
-
-for col in convert_cols:
-    convert_time(col)
+def convert_time_columns(flights_df):
+    convert_cols = ['dep_time', 'sched_dep_time', 'arr_time', 'sched_arr_time']
+    
+    def convert_time(col):
+        new_col = col.replace('time', 'date')
+        bool_mask = flights_df[col].notna()
+        
+        flights_df[new_col] = np.nan
+        flights_df[new_col] = flights_df[new_col].astype(object)
+        
+        flights_df.loc[bool_mask, new_col] = flights_df.loc[bool_mask, col].astype(int).astype(str).str.zfill(4)
+        
+        flights_df[new_col] = pd.to_datetime(
+            flights_df['year'].astype(str) + '-' +
+            flights_df['month'].astype(str) + '-' +
+            flights_df['day'].astype(str) + ' ' +
+            flights_df[new_col].str[:2] + ':' +
+            flights_df[new_col].str[2:],
+            format='%Y-%m-%d %H:%M', errors='coerce'
+        )
+    
+    for col in convert_cols:
+        convert_time(col)
+    
+    return flights_df
 
 # Shifting the arr_date and sched_arr_date one day up, when dep_date is greater than arr_date
 # because it is not yet invented: time travelling
