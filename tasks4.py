@@ -1,15 +1,5 @@
 from utilities import *
 
-data_class = Data()
-
-# importing the flights data from the database
-conn = sqlite3.Connection('Data/flights_database.db')
-cursor = conn.cursor()
-query_flights = f'SELECT * FROM flights'
-data_class.cursor.execute(query_flights)
-data_rows = cursor.fetchall()
-flights_df = pd.DataFrame(data_rows, columns=[col[0] for col in cursor.description])
-
 """
 Check the table flights for missing values and think of ways to resolve them.
 """
