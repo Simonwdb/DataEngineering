@@ -42,6 +42,17 @@ airlines_df = data_class.get_dataframe(query_airlines)
 query_weather = '''SELECT * from weather'''
 weather_df = data_class.get_dataframe(query_weather)
 
+# Perform some data wrangling on the flights_df
+convert_time_columns(flights_df)
+adjust_flight_dates(flights_df)
+calculate_delays(flights_df)
+adjust_negative_delays(flights_df)
+check_delay_equality(flights_df)
+
+flights_df = merge_timezone_info(flights_df, airports_df)
+
+convert_arr_date_to_gmt5(flights_df)
+calculate_block_and_taxi_time(flights_df)
 
 
 def main():
