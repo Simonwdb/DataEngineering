@@ -6,7 +6,7 @@ data_class = Data()
 conn = sqlite3.Connection('Data/flights_database.db')
 cursor = conn.cursor()
 query_flights = f'SELECT * FROM flights'
-cursor.execute(query_flights)
+data_class.cursor.execute(query_flights)
 data_rows = cursor.fetchall()
 flights_df = pd.DataFrame(data_rows, columns=[col[0] for col in cursor.description])
 
@@ -75,9 +75,7 @@ flight. If not, think of ways to resolve it if this is not the case.
 
 flights_df['dep_date_delay'] = (flights_df['dep_date'] - flights_df['sched_dep_date']) / pd.Timedelta(minutes=1)
 flights_df['arr_date_delay'] = (flights_df['arr_date'] - flights_df['sched_arr_date']) / pd.Timedelta(minutes=1)
-# Still not sure how to calulcate air_time
-# I thought it would be the difference between arrival at destination and departure at origin
-flights_df['air_time_date'] = (flights_df['arr_date'] - flights_df['dep_date']) / pd.Timedelta(minutes=1)
+
 
 """
 Create a column that contains the local arrival time, incorporating the time
