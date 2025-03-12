@@ -72,6 +72,15 @@ def adjust_negative_delays(flights_df, threshold=-600):
     flights_df.loc[arr_delay_mask2, 'arr_date'] += pd.Timedelta(days=1)
     calculate_delays(flights_df)
 
+'''
+Because there is almost no equality in the given air_time and our calculated air_time, we only compare if the data in flights is in order for the delays.
+'''
+
+def check_delay_equality(flights_df):
+    dep_delay_mask = flights_df['dep_delay'] == flights_df['dep_date_delay']
+    arr_delay_mask = flights_df['arr_delay'] == flights_df['arr_date_delay']
+    flights_df['delay_eq'] = False
+    flights_df.loc[(dep_delay_mask) & (arr_delay_mask), 'delay_eq'] = True
 
 """
 Create a column that contains the local arrival time, incorporating the time
