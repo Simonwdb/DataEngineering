@@ -1,4 +1,5 @@
 from utilities import *
+from tasks4 import *
 
 data_class = Data()
 
@@ -45,7 +46,7 @@ weather_df = data_class.get_dataframe(query_weather)
 
 def main():
     print("Here we call the functions from the points described in the functions folder/file")
-    fill_speed(get_connection())
+    # fill_speed(get_connection())
 
 if __name__ == "__main__":
     main()
