@@ -41,8 +41,9 @@ def process_flights_data(flights_df, airports_df):
 
 
 def main():
-    print("Here we call the functions from the points described in the functions folder/file")
-    # fill_speed(get_connection())
+    data = load_data()
+    global flights_df
+    flights_df = process_flights_data(data['flights'], data['airports'])
 
 if __name__ == "__main__":
     main()
