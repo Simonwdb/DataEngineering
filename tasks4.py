@@ -4,6 +4,16 @@ from utilities import *
 Check the table flights for missing values and think of ways to resolve them.
 """
 
+'''
+The zero values in the departure and arrival rows will be removed from the dataset. 
+This is because the rows with missing data are not considered as zero records; 
+meaning that if a flight has no delay, it is simply recorded with the number zero, and not as a missing value. 
+Therefore, we assume that the rows with null values can be removed for this reason.
+'''
+
+def remove_nan_values(flights_df):
+    return flights_df[(~ flights_df['dep_time'].isna()) & (~ flights_df['arr_time'].isna())]
+
 """
 Look for duplicates in the flight table. Take into account that here a flight
 number can occur multiple times, only count it as duplicate when the same flight
