@@ -121,6 +121,13 @@ def convert_arr_date_to_gmt5(flights_df):
 
     flights_df['arr_date_gmt5'] = flights_df['arr_date_gmt5'].dt.tz_localize(None)
 
+'''
+Because the air_time that is given in the dataset is sparse when equal to our calculated air_time, which is the difference between dep_date and arr_date_gmt5. 
+We made the assumption that our calculated air_time would be so called block_time. Which could be seen as the time difference when the brake blocks are on (arr_date_gmt5) and brake blocks are off (dep_date).
+So that could be seen as gross air_time. The positive difference between the given air_time from the dataset and our calculated block_time is the taxi_time for which an airplane takes. 
+We will use taxi_time as a statistic in our dashboard.
+'''
+
 """
 In addition, information on the different types of planes and airlines will be
 important. Consider studying what the effect of the wind or precipitation is on
