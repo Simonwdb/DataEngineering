@@ -90,3 +90,79 @@ In addition, information on the different types of planes and airlines will be
 important. Consider studying what the effect of the wind or precipitation is on
 different plane types.
 """
+
+import pandas as pd
+import matplotlib.pyplot as plt
+
+def analyze_weather_effect_by_plane_model(top_n_models, sample_size):
+    query = """
+    SELECT 
+      f.dep_delay,
+      f.tailnum,
+      f.origin,
+      f.year,
+      f.month,
+      f.day,
+      f.hour,
+      f.minute,
+      CASE WHEN f.minute >= 30 THEN 
+            CASE WHEN f.hour = 23 THEN 0 ELSE f.hour + 1 END 
+           ELSE f.hour END AS dep_hour_adj,
+      p.model AS plane_model,
+      w.wind_speed,
+      w.precip
+    FROM flights f
+    JOIN planes p ON f.tailnum = p.tailnum
+    JOIN weather w ON f.origin = w.origin 
+       AND f.year = w.year 
+       AND f.month = w.month 
+       AND f.day = w.day 
+       AND (CASE WHEN f.minute >= 30 THEN 
+                  CASE WHEN f.hour = 23 THEN 0 ELSE f.hour + 1 END 
+                 ELSE f.hour END) = w.hour
+    WHERE f.dep_delay IS NOT NULL
+      AND w.wind_speed IS NOT NULL
+    LIMIT ?
+    """
+    df = pd.read_sql_query(query, conn, params=(sample_size,))
+    
+    # Ensure precipitation is numeric; fill missing with 0.
+    df['precip'] = pd.to_numeric(df['precip'], errors='coerce').fillna(0)
+    
+    # Count flights per model and select top N models.
+    model_counts = df['plane_model'].value_counts().head(top_n_models)
+    top_models = model_counts.index.tolist()
+    print("Top plane models by number of flights:", top_models)
+    
+    # Create scatter plots for each of the top models.
+    for model in top_models:
+        sub_df = df[df['plane_model'] == model]
+        if sub_df.empty:
+            continue
+        plt.figure(figsize=(14, 6))
+        
+        # Plot wind speed vs. departure delay.
+        plt.subplot(1, 2, 1)
+        plt.scatter(sub_df['wind_speed'], sub_df['dep_delay'], alpha=0.5)
+        plt.xlabel("Wind Speed")
+        plt.ylabel("Departure Delay (min)")
+        plt.title(f"Model: {model} | Wind Speed vs. Dep Delay")
+        
+        # Plot precipitation vs. departure delay.
+        plt.subplot(1, 2, 2)
+        plt.scatter(sub_df['precip'], sub_df['dep_delay'], alpha=0.5, color='orange')
+        plt.xlabel("Precipitation (mm/hr)")
+        plt.ylabel("Departure Delay (min)")
+        plt.title(f"Model: {model} | Precipitation vs. Dep Delay")
+        
+        plt.tight_layout()
+        plt.show()
+    
+    return df
+
+# Example usage:
+if __name__ == "__main__":
+    try:
+        df_joined = analyze_weather_effect_by_plane_model(top_n_models=10, sample_size=10000)
+    except Exception as e:
+        print("Error during analysis", e)
