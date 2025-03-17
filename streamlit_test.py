@@ -1,6 +1,7 @@
 """
 
-For now I created a example dashboard with dummy data. To see how it looks, and works. 
+For now I created a example dashboard with dummy data. To see how it looks, and works. When this works, we can use our data in main.py.
+Best to make main.py into sort like file as this example.
 
 Notes:
 - Add a plot that shows the graph between the distance from the origin to the destination.
