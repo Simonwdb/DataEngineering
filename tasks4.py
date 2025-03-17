@@ -160,7 +160,6 @@ def analyze_weather_effect_by_plane_model(top_n_models, sample_size):
     
     return df
 
-# Example usage:
 if __name__ == "__main__":
     try:
         df_joined = analyze_weather_effect_by_plane_model(top_n_models=10, sample_size=10000)
