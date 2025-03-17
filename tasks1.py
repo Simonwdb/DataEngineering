@@ -13,7 +13,9 @@ def plot_airports_by_region(airports_df):
     Identifies airports outside of the US and creates a separate US-only map.
     Also color codes airports by altitude.
     """
-    america_df = airports_df[airports_df['tzone'].str.startswith('America')]
+    america_df = airports_df.copy(deep=True)
+    america_df['tzone'].fillna('Unknown', inplace=True)
+    america_df = america_df[america_df['tzone'].str.startswith('America')]
     fig = px.scatter_geo(
         america_df,
         lat='lat',
@@ -22,7 +24,7 @@ def plot_airports_by_region(airports_df):
         scope='usa',
         color='alt'
     )
-    return fig.show()
+    return fig
     
 
 def is_american_faa(faa_code, airports_df):
