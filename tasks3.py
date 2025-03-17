@@ -198,7 +198,7 @@ def get_statistics(month, day, airport, flights_df):
 a dict describing how many times each plane type was used for that flight
 trajectory. For this task you will need to match the columns tailnum to type
 in the table planes and match this to the tailnum s in the table flights."""
-def get_plane_types(origin, destination):
+def get_plane_types(cursor, origin, destination):
     # Get the plane types for the flight trajectory
     # Return the dict
     query_type_counts = '''
@@ -209,7 +209,7 @@ def get_plane_types(origin, destination):
     GROUP BY p.type
     ORDER BY count DESC
     '''
-    cursor = data_class.conn.cursor()
+
     cursor.execute(query_type_counts, (origin, destination))
     data = cursor.fetchall()
     df = pd.DataFrame(data, columns=[x[0] for x in cursor.description])
@@ -217,7 +217,7 @@ def get_plane_types(origin, destination):
 
     return result_dict
 
-def get_plane_model_counts(origin, destination):
+def get_plane_model_counts(cursor, origin, destination):
     query_model_counts = '''
     SELECT p.manufacturer || ' ' || p.model AS plane_model, COUNT(*) as count
     FROM flights AS f
@@ -227,7 +227,6 @@ def get_plane_model_counts(origin, destination):
     ORDER BY count DESC
     '''
     
-    cursor = data_class.conn.cursor()
     cursor.execute(query_model_counts, (origin, destination))
     data = cursor.fetchall()
     df = pd.DataFrame(data, columns=[x[0] for x in cursor.description])
