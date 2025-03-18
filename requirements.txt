@@ -1,0 +1,7 @@
+math
+sqlite3
+pandas
+numpy
+ploty
+matplotlib
+datetime
