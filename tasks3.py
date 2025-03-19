@@ -381,7 +381,7 @@ def average_bearing(bearings):
     return avg_angle_deg
 
 
-def calculate_average_bearings(data_class):
+def calculate_average_bearings():
     """
     Calculates the average bearing from all NYC departure airports to each destination airport.
     Returns a dictionary with destination FAA codes as keys and average bearings as values.
