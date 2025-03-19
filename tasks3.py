@@ -412,69 +412,6 @@ for dest, avg_bearing in average_bearings.items():
 """Write a function that computes the inner product between the flight direction
 and the wind speed of a given flight."""
 
-INDEX = 5
-
-def flight_wind_inner_product(flight_record):
-    cursor = data_class.cursor
-    
-    # Retrieve coordinates for the origin airport.
-    cursor.execute("SELECT lat, lon FROM airports WHERE faa = ?", (flight_record['origin'],))
-    origin_coords = cursor.fetchone()
-    if not origin_coords:
-        raise ValueError(f"Origin airport {flight_record['origin']} not found.")
-    origin_lat, origin_lon = origin_coords
-    
-    # Retrieve coordinates for the destination airport.
-    cursor.execute("SELECT lat, lon FROM airports WHERE faa = ?", (flight_record['dest'],))
-    dest_coords = cursor.fetchone()
-    if not dest_coords:
-        raise ValueError(f"Destination airport {flight_record['dest']} not found.")
-    dest_lat, dest_lon = dest_coords
-    
-    # Compute the flight's bearing (direction) from origin to destination.
-    flight_direction = calculate_bearing(origin_lat, origin_lon, dest_lat, dest_lon)
-    
-    dep_time_str = str(flight_record['dep_time']).zfill(4)
-    dep_hour_raw = int(dep_time_str[:-2])
-    dep_minute = int(dep_time_str[-2:])
-    
-    rounded_dep_hour = dep_hour_raw + 1 if dep_minute >= 30 else dep_hour_raw
- 
-    if rounded_dep_hour == 24:
-        rounded_dep_hour = 0
-    
-    # Retrieve the corresponding weather data using the rounded departure hour.
-    weather_query = """
-    SELECT wind_speed, wind_dir
-    FROM weather
-    WHERE origin = ? AND year = ? AND month = ? AND day = ? AND hour = ?
-    LIMIT 1
-    """
-    cursor.execute(weather_query, (flight_record['origin'],
-                                   flight_record['year'],
-                                   flight_record['month'],
-                                   flight_record['day'],
-                                   rounded_dep_hour))
-    weather = cursor.fetchone()
-    if not weather:
-        raise ValueError("No matching weather record found for this flight's departure details.")
-    wind_speed, wind_dir = weather
-    
-    # Compute the inner product: wind_speed * cos( flight_direction - wind_dir )
-    inner_product = wind_speed * math.cos(math.radians(flight_direction - wind_dir))
-    
-    result = {
-        "flight": flight_record['flight'],
-        "origin": flight_record['origin'],
-        "dest": flight_record['dest'],
-        "flight_direction": flight_direction,
-        "dep_hour": rounded_dep_hour,
-        "wind_speed": wind_speed,
-        "wind_dir": wind_dir,
-        "inner_product": inner_product
-    }
-    return result
-
 def get_flight_record_by_index(index):
     cursor = data_class.cursor
     query = "SELECT * FROM flights LIMIT 1 OFFSET ?"
