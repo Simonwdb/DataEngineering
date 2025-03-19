@@ -160,6 +160,45 @@ elif page == 'Arrival Airport Comparison':
 elif page == 'Departure Airport Comparison':
     st.header('🏢 Departure Airport Comparison')
 
+    # Select departure airport
+    departure = st.selectbox('Select departure airport:', flights_df['origin'].unique())
+
+    # Determine the minimum and maximum dates from dep_date and arr_date columns
+    min_date = pd.to_datetime(flights_df['sched_dep_date'].min()).date()
+    max_date = pd.to_datetime(flights_df['arr_date'].max()).date()
+
+    # Date input with a calendar widget
+    selected_date = st.date_input(
+        'Select a date:',
+        min_value=min_date,
+        max_value=max_date,
+        value=min_date  # Default to the earliest date
+    )
+
+    # Extract month and day from the selected date
+    month = selected_date.month
+    day = selected_date.day
+
+    # Get statistics for the selected day and airport
+    stats = get_statistics(month, day, departure, flights_df)
+
+    if not stats:  # Check if stats is empty (no flights found)
+        st.warning(f"No flights found on {month}/{day} from {departure}.")
+    else:
+        # Display statistics
+        st.subheader(f"Statistics for flights on {selected_date} from {departure}")
+        
+        col1, col2, col3, col4 = st.columns(4)
+        col1.metric("Total Flights", stats['num_flights'])
+        col2.metric("Unique Destinations", stats['num_unique_destinations'])
+        col3.metric("Most Frequent Destination", stats['most_frequent_destination'])
+        col4.metric("Flights to Most Frequent Destination", stats['most_frequent_destination_count'])
+
+        # Optionally, add a map or other visualizations here
+        st.subheader(f"Map of flights from {departure} on {selected_date}")
+        fig = plot_destinations(month=month, day=day, origin_airport=departure, flights_df=flights_df, airports_df=airports_df)
+        st.plotly_chart(fig)
+
 elif page == 'Delays & Causes':
     st.header('⏳ Delays & Causes')
     
