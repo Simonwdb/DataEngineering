@@ -272,7 +272,8 @@ def top_manufacturers(destination):
 
 """Investigate whether there is a relationship between the distance of a flight and
 the arrival delay time."""
-def distance_vs_delay(conn):
+def distance_vs_delay():
+    conn = data_class.conn
     # Investigate the relationship between the distance of a flight and the arrival delay time
     querry = """select distance, arr_delay from flights where arr_delay is not null"""
     df = pd.read_sql_query(querry, conn)
