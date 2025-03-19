@@ -343,10 +343,6 @@ def fill_speed():
 the direction the plane follows when flying there from New York."""
 
 def calculate_bearing_vectorized(lat1, lon1, lat2, lon2):
-    """
-    Calculate the bearing from point (lat1, lon1) to point (lat2, lon2) using vectorized operations.
-    The result is in degrees and normalized to [0, 360).
-    """
     # Convert degrees to radians
     lat1, lon1, lat2, lon2 = np.radians(lat1), np.radians(lon1), np.radians(lat2), np.radians(lon2)
     delta_lon = lon2 - lon1
@@ -357,18 +353,16 @@ def calculate_bearing_vectorized(lat1, lon1, lat2, lon2):
     initial_bearing = np.arctan2(x, y)
     # Convert bearing from radians to degrees and normalize to 0-360
     bearing_degrees = (np.degrees(initial_bearing) + 360) % 360
+    
     return bearing_degrees
 
-def average_bearing(bearings):
-    """
-    Compute the average bearing from a list of bearings (in degrees)
-    by converting each to a unit vector, averaging, and then computing the angle.
-    This is the proper way to average circular quantities.
-    """
-    sin_sum = sum(math.sin(math.radians(b)) for b in bearings)
-    cos_sum = sum(math.cos(math.radians(b)) for b in bearings)
-    avg_angle_rad = math.atan2(sin_sum, cos_sum)
-    avg_angle_deg = (math.degrees(avg_angle_rad) + 360) % 360
+def average_bearing_vectorized(bearings):
+    bearings_rad = np.radians(bearings)
+    sin_sum = np.sum(np.sin(bearings_rad))
+    cos_sum = np.sum(np.cos(bearings_rad))
+    avg_angle_rad = np.arctan2(sin_sum, cos_sum)
+    avg_angle_deg = (np.degrees(avg_angle_rad) + 360) % 360
+    
     return avg_angle_deg
 
 
