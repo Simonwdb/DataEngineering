@@ -323,7 +323,7 @@ def fill_speed():
     """
 
     conn = data_class.conn
-    cursor = conn.cursor
+    cursor = data_class.cursor
     cursor.execute(query)
     speeds = cursor.fetchall()  # List of (tailnum, model, avg_speed)
 
