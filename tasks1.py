@@ -74,7 +74,6 @@ def plot_flight_from_nyc(faa_codes, airports_df):
         lon="lon",
         hover_name="name",
         projection=projection_type,
-        title="Routes from NYC to Selected Airport(s)"
     )
 
     # Add NYC point
