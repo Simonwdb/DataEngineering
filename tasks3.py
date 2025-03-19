@@ -197,7 +197,7 @@ def get_plane_types(cursor, origin, destination):
 
     return result_dict
 
-def get_plane_model_counts(cursor, origin, destination):
+def get_plane_model_counts(origin, destination):
     query_model_counts = '''
     SELECT p.manufacturer || ' ' || p.model AS plane_model, COUNT(*) as count
     FROM flights AS f
@@ -206,7 +206,7 @@ def get_plane_model_counts(cursor, origin, destination):
     GROUP BY plane_model
     ORDER BY count DESC
     '''
-    
+    cursor = data_class.cursor
     cursor.execute(query_model_counts, (origin, destination))
     data = cursor.fetchall()
     df = pd.DataFrame(data, columns=[x[0] for x in cursor.description])
