@@ -265,10 +265,23 @@ elif page == 'Aircraft Types & Speed':
     st.plotly_chart(fig)
 
 elif page == 'Weather Impact':
-    st.header('🌦️ Weather Impact on Flights')
+    st.header('🌬️ Weather Impact on Air Time')
     
-    weather_impact = flights_data.groupby('Weather Condition')['Arrival Delay (min)'].mean().reset_index()
-    fig = px.bar(weather_impact, x='Weather Condition', y='Arrival Delay (min)', title='Average Delay per Weather Type')
-    st.plotly_chart(fig)
+    df, fig = analyze_inner_product_vs_air_time()
+    
+    if fig is not None:
+        st.plotly_chart(fig)
+        
+        st.subheader("Average Air Time by Inner Product Sign")
+        
+        col1, col2, col3 = st.columns(3)
+        summary = df.groupby('ip_sign')['air_time'].mean()
+        col1.metric("Negative Inner Product", f"{summary['negative']:.1f}")
+        col2.metric("Positive Inner Product", f"{summary['positive']:.1f}")
+        col3.metric("Zero Inner Product", f"{summary['zero']:.1f}")
+    
+    else:
+        st.warning("No valid flight records found for analysis.")
+    
 
 st.sidebar.write('Created for the analysis of NYC flights')
