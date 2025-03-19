@@ -111,6 +111,11 @@ if page == 'Overview':
     airports_fig = plot_airports_by_region(data['airports'])
     st.plotly_chart(airports_fig)
 
+    # Add the timezone distribution plot
+    st.subheader('Distribution of Airports by Time Zone')
+    timezone_fig = plot_timezones(data['airports'])
+    st.plotly_chart(timezone_fig)
+
     # Get the top 10 destinations based on frequency and sort them
     top_10_destinations = flights_df['dest'].value_counts().nlargest(10).sort_values(ascending=False)
 
