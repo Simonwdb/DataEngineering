@@ -162,6 +162,7 @@ elif page == 'Departure Airport Comparison':
 
     # Select departure airport
     departure = st.selectbox('Select departure airport:', flights_df['origin'].unique())
+    departure_name = airports_df[airports_df['faa'] == departure]['name'].values[0]
 
     # Determine the minimum and maximum dates from dep_date and arr_date columns
     min_date = pd.to_datetime(flights_df['sched_dep_date'].min()).date()
@@ -183,10 +184,10 @@ elif page == 'Departure Airport Comparison':
     stats = get_statistics(month, day, departure, flights_df)
 
     if not stats:  # Check if stats is empty (no flights found)
-        st.warning(f"No flights found on {month}/{day} from {departure}.")
+        st.warning(f"No flights found on {month}/{day} from {departure_name}.")
     else:
         # Display statistics
-        st.subheader(f"Statistics for flights on {selected_date} from {departure}")
+        st.subheader(f"Statistics for flights on {selected_date} from {departure_name}")
         
         col1, col2, col3, col4 = st.columns(4)
         col1.metric("Total Flights", stats['num_flights'])
@@ -195,8 +196,42 @@ elif page == 'Departure Airport Comparison':
         col4.metric("Flights to Most Frequent Destination", stats['most_frequent_destination_count'])
 
         # Optionally, add a map or other visualizations here
-        st.subheader(f"Map of flights from {departure} on {selected_date}")
+        st.subheader(f"Map of flights from {departure_name} on {selected_date}")
         fig = plot_destinations(month=month, day=day, origin_airport=departure, flights_df=flights_df, airports_df=airports_df)
+        fig.update_layout(
+            height=600,
+            width=1000
+        )
+        st.plotly_chart(fig)
+
+        # Add the bar chart for top 10 plane models
+        frequent_airport_name = airports_df[airports_df['faa'] == stats['most_frequent_destination']]['name'].values[0]
+        st.subheader(f"Top 10 Plane Models from {departure_name} to {frequent_airport_name} on {selected_date}")
+        
+        # Get the top 10 plane models for the selected route
+        plane_model_counts = get_plane_model_counts(departure, stats['most_frequent_destination'])
+        plane_model_df = pd.DataFrame(list(plane_model_counts.items()), columns=['plane_model', 'count'])
+        plane_model_df = plane_model_df.nlargest(10, 'count')  # Get the top 10
+
+        # Create the bar chart
+        fig = px.bar(
+            plane_model_df,
+            x='plane_model',
+            y='count',
+            text='count'
+        )
+
+        # Update the layout to match the style of the Top 10 Destinations chart
+        fig.update_traces(textposition='outside')
+        fig.update_layout(
+            xaxis_title='Plane Model',
+            yaxis_title='Number of Flights',
+            showlegend=False,
+            height=600,
+            width=1000
+        )
+
+        # Display the chart
         st.plotly_chart(fig)
 
 elif page == 'Delays & Causes':
