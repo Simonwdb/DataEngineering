@@ -62,6 +62,28 @@ data = load_data()
 
 flights_df = process_flights_data(data['flights'], data['airports'])
 
+# Dummy data
+def generate_dummy_data():
+    np.random.seed(42)
+    airports = ['JFK', 'LGA', 'EWR', 'SFO', 'LAX', 'ORD', 'ATL', 'MIA']
+    airlines = ['Delta', 'American', 'United', 'JetBlue', 'Southwest']
+    
+    flights = pd.DataFrame({
+        'Flight ID': range(1, 201),
+        'Departure Airport': np.random.choice(airports[:3], 200),
+        'Arrival Airport': np.random.choice(airports[3:], 200),
+        'Airline': np.random.choice(airlines, 200),
+        'Distance (km)': np.random.randint(300, 5000, 200),
+        'Departure Delay (min)': np.random.randint(-10, 120, 200),
+        'Arrival Delay (min)': np.random.randint(-10, 150, 200),
+        'Taxi Time (min)': np.random.randint(5, 40, 200),
+        'Passengers': np.random.randint(50, 300, 200),
+        'Departure Time': pd.date_range('2023-01-01', periods=200, freq='h').time,
+        'Weather Condition': np.random.choice(['Clear', 'Rain', 'Storm', 'Foggy'], 200)
+    })
+    return flights
+
+flights_data = generate_dummy_data()
 
 
 # Streamlit UI
