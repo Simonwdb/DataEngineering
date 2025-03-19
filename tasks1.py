@@ -59,8 +59,7 @@ def plot_flight_from_nyc(faa_codes, airports_df):
     df_selected = airports_df[airports_df["faa"].isin(faa_codes)]
 
     if df_selected.empty:
-        print("No matching FAA codes found.")
-        return
+        return None
 
     # Check if all airports are in the US (requires a function is_american_faa)
     all_in_us = all(is_american_faa(faa, airports_df) for faa in faa_codes)
