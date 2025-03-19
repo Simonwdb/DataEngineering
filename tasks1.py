@@ -108,7 +108,7 @@ def plot_flight_from_nyc(faa_codes, airports_df):
             scope="world"
         )
 
-    return fig.show()
+    return fig
 
 
 def compute_euclidean_distances(airports_df):
@@ -254,7 +254,7 @@ def plot_timezones(airports_df):
 
     fig.update_layout(xaxis=dict(tickmode='array', tickvals=list(range(min_tz, max_tz + 1))))
 
-    return fig.show()
+    return fig
 
 def plot_airport_altitude_distribution():
     """
@@ -264,4 +264,4 @@ def plot_airport_altitude_distribution():
                    title="Distribution of Airport Altitudes",
                    labels={"alt": "Altitude (ft)", "Airport frequency": "Number of Airports"})
 
-    return fig.show()
+    return fig
