@@ -133,6 +133,11 @@ if page == 'Overview':
     # Display the chart in the dashboard
     st.plotly_chart(fig)
 
+    # 
+    st.subheader('Correlation between Distance vs Arrival Delay')
+    corr_fig = distance_vs_delay()
+    st.plotly_chart(corr_fig)
+
 elif page == 'Arrival Airport Comparison':
     st.header('🏢 Arrival Airport Comparison')
     departure = st.selectbox('Select departure airport:', flights_df['dest'].unique())
