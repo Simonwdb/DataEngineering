@@ -366,16 +366,12 @@ def average_bearing_vectorized(bearings):
     return avg_angle_deg
 
 
-def calculate_average_bearings():
-    """
-    Calculates the average bearing from all NYC departure airports to each destination airport.
-    Returns a dictionary with destination FAA codes as keys and average bearings as values.
-    """
+def calculate_average_bearings_optimized():
     cursor = data_class.cursor
 
-    # Query to get origin, destination, and their coordinates
+    # Query to get origin, destination, and their coordinates, along with airport names
     query = """
-    SELECT f.origin, f.dest, o.lat as origin_lat, o.lon as origin_lon, d.lat as dest_lat, d.lon as dest_lon
+    SELECT f.origin, f.dest, o.lat as origin_lat, o.lon as origin_lon, d.lat as dest_lat, d.lon as dest_lon, d.name as dest_name
     FROM flights f
     JOIN airports o ON f.origin = o.faa
     JOIN airports d ON f.dest = d.faa;
@@ -383,25 +379,21 @@ def calculate_average_bearings():
     cursor.execute(query)
     rows = cursor.fetchall()
 
-    # Dictionary to store bearings for each destination
-    dest_bearings = defaultdict(list)
+    # Convert rows to a Pandas DataFrame for efficient processing
+    df = pd.DataFrame(rows, columns=['origin', 'dest', 'origin_lat', 'origin_lon', 'dest_lat', 'dest_lon', 'dest_name'])
 
-    # Calculate bearings for each flight
-    for origin, dest, origin_lat, origin_lon, dest_lat, dest_lon in rows:
-        bearing = calculate_bearing(origin_lat, origin_lon, dest_lat, dest_lon)
-        dest_bearings[dest].append(bearing)
+    # Calculate bearings for all flights at once using vectorized operations
+    df['bearing'] = calculate_bearing_vectorized(
+        df['origin_lat'], df['origin_lon'], df['dest_lat'], df['dest_lon']
+    )
 
-    # Compute the average bearing for each destination airport using vector averaging
-    average_bearings = {dest: average_bearing(bearings) for dest, bearings in dest_bearings.items()}
-
-    # Get airport names for display
-    cursor.execute("SELECT faa, name FROM airports")
-    airport_names = dict(cursor.fetchall())
+    # Group by destination and calculate average bearings
+    average_bearings = df.groupby('dest')['bearing'].apply(average_bearing_vectorized).to_dict()
 
     # Create a dictionary with destination FAA codes, names, and average bearings
     result = {
         dest: {
-            "name": airport_names.get(dest, "Unknown"),
+            "name": df[df['dest'] == dest]['dest_name'].iloc[0],  # Get the name from the first occurrence
             "average_bearing": avg_bearing
         }
         for dest, avg_bearing in average_bearings.items()
