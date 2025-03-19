@@ -486,22 +486,6 @@ def get_flight_record_by_index(index):
     flight_record = dict(zip(columns, row))
     return flight_record
 
-if __name__ == "__main__":   
-    try:
-        # Retrieve a flight record by its position (e.g., the 2nd flight; 0-based index).
-        flight_record = get_flight_record_by_index(INDEX)
-        print("Selected Flight Record:")
-        for key, value in flight_record.items():
-            print(f"{key}: {value}")
-        
-        print("\nComputing wind inner product for the selected flight...")
-        result = flight_wind_inner_product(flight_record)
-        print("\nFlight Wind Inner Product Details:")
-        for key, value in result.items():
-            print(f"{key}: {value}")
-    except Exception as e:
-        print("Error: Index out of range", e)
-
 """Is there a relation between the sign of this inner product and the air time?"""
 
 def flight_wind_inner_product(flight_record):
