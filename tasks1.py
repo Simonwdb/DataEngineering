@@ -255,11 +255,11 @@ def plot_timezones(airports_df):
 
     return fig
 
-def plot_airport_altitude_distribution():
+def plot_airport_altitude_distribution(airports_df):
     """
     Plots distribution of airport frequency vs its altitude
     """
-    fig = px.histogram(df, x="alt", nbins=50, 
+    fig = px.histogram(airports_df, x="alt", nbins=50, 
                    title="Distribution of Airport Altitudes",
                    labels={"alt": "Altitude (ft)", "Airport frequency": "Number of Airports"})
 
