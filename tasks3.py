@@ -252,6 +252,44 @@ def get_delayed_flights(flights_df, month, destination):
     ]
     return len(delayed_flights)
 
+def plot_top_10_delayed_airlines(flights_df, airlines_df):
+    # Calculate total delay for each flight
+    flights_df['total_delay'] = flights_df['dep_date_delay'] + flights_df['arr_date_delay']
+
+    # Group by airline and calculate the average total delay
+    airline_delays = flights_df.groupby('carrier')['total_delay'].mean().reset_index()
+
+    # Round the average delay to 1 decimal place
+    airline_delays['total_delay'] = airline_delays['total_delay'].round(1)
+
+    # Merge with airlines_df to get full airline names
+    airline_delays = airline_delays.merge(airlines_df, left_on='carrier', right_on='carrier', how='left')
+
+    # Sort by average delay in descending order and take the top 10
+    top_10_airlines = airline_delays.sort_values('total_delay', ascending=False).head(10)
+
+    # Create the bar chart
+    fig = px.bar(
+        top_10_airlines,
+        x='name',  # Use the full airline name
+        y='total_delay',
+        title='Top 10 Airlines with the Most Delays',
+        labels={'name': 'Airline', 'total_delay': 'Average Total Delay (minutes)'},
+        text_auto=True
+    )
+
+    # Update layout for better readability
+    fig.update_traces(textposition='outside')
+    fig.update_layout(
+        xaxis_title='Airline',
+        yaxis_title='Average Total Delay (minutes)',
+        showlegend=False,
+        height=600,
+        width=1000
+    )
+
+    return fig
+
 """Write a function that takes a destination airport as input and returns the top 5
 airplane manufacturers with planes departing to this destination. For this task,
 you have to combine data from flights and planes."""
