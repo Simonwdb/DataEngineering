@@ -3,9 +3,6 @@ from utilities import *
 data_class = Data()
 from collections import defaultdict
 
-def test():
-    print("Testing the functions from the tasks3.py file")
-
 """Verify that the distances you computed in part 1 are roughly equal to the dis-
 tances in the variable distance in the table flights. If they are much oﬀ,
 recall that latitude and longitude represent angles expressed in degrees, while the
