@@ -590,8 +590,7 @@ def analyze_inner_product_vs_air_time(sample_size=10000):
     
     df = pd.DataFrame(results)
     if df.empty:
-        print("No valid flight records found for analysis.")
-        return df
+        return df, None  # Return the DataFrame and None for the figure
     
     # Define a function to assign sign labels.
     def ip_sign(x):
@@ -604,17 +603,23 @@ def analyze_inner_product_vs_air_time(sample_size=10000):
     
     df['ip_sign'] = df['inner_product'].apply(ip_sign)
     
-    # Summary: average air_time by inner product sign.
-    summary = df.groupby('ip_sign')['air_time'].mean()
-    print("Average air_time by inner product sign:")
-    print(summary)
-       
-    # Scatter plot: inner product vs air_time.
-    plt.figure(figsize=(8,6))
-    plt.scatter(df['inner_product'], df['air_time'], alpha=0.5)
-    plt.xlabel("Inner Product")
-    plt.ylabel("Air Time (minutes)")
-    plt.title("Scatter Plot: Inner Product vs Air Time")
-    plt.show()
-    
-    return df
+    # Create a Plotly scatter plot
+    fig = px.scatter(
+        df,
+        x='inner_product',
+        y='air_time',
+        title="Scatter Plot: Inner Product vs Air Time",
+        labels={'inner_product': 'Inner Product', 'air_time': 'Air Time (minutes)'},
+        opacity=0.5
+    )
+
+    # Update layout for better readability
+    fig.update_layout(
+        xaxis_title="Inner Product",
+        yaxis_title="Air Time (minutes)",
+        showlegend=False,
+        height=600,
+        width=1000
+    )
+
+    return df, fig
