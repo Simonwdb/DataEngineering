@@ -74,6 +74,7 @@ def plot_flight_from_nyc(faa_codes, airports_df):
         lon="lon",
         hover_name="name",
         projection=projection_type,
+        title= f"Route from NYC to Selected Airport: {airports_df.loc[airports_df['faa'] == faa_codes[0], 'name'].values[0]}"
     )
 
     # Add NYC point
