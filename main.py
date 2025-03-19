@@ -19,8 +19,6 @@ def load_data():
         "airlines": "SELECT * FROM airlines",
         "weather": "SELECT * FROM weather"
     }
-    
-    fill_speed() # update the planes database
 
     dataframes = {name: get_dataframe_safe(data_class, query) for name, query in queries.items()}
     
