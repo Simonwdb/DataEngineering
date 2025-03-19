@@ -63,7 +63,7 @@ def plot_flight_from_nyc(faa_codes, airports_df):
         return
 
     # Check if all airports are in the US (requires a function is_american_faa)
-    all_in_us = all(is_american_faa(faa) for faa in faa_codes)
+    all_in_us = all(is_american_faa(faa, airports_df) for faa in faa_codes)
 
     # Choose the projection type based on whether the airports are in the US
     projection_type = "albers usa" if all_in_us else "natural earth"
