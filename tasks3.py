@@ -631,9 +631,3 @@ def analyze_inner_product_vs_air_time(sample_size=10000):
     plt.show()
     
     return df
-
-if __name__ == "__main__":
-    try:
-        df_analysis = analyze_inner_product_vs_air_time(sample_size=10000)
-    except Exception as e:
-        print("Error during analysis", e)
