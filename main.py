@@ -43,4 +43,6 @@ def process_flights_data(flights_df, airports_df):
 
 data = load_data()
 
+fill_speed()
 flights_df = process_flights_data(data['flights'], data['airports'])
+airpors_df = data['airports']
