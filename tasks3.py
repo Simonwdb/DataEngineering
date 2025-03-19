@@ -339,9 +339,6 @@ def fill_speed():
         cursor.execute(update_query, (avg_speed, tailnum))
 
     conn.commit()  # Save changes to database
-    print("Updated plane speeds successfully.")
-
-    return
 
 """The wind direction is given in weather in degrees. Compute for each airport
 the direction the plane follows when flying there from New York."""
