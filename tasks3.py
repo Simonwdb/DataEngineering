@@ -307,7 +307,6 @@ def distance_vs_delay():
 compute the average speed by taking the average of the distance divided by flight
 time over all flights of that model. Use this information to fill the column speed
 in the table planes."""
-import sqlite3
 
 
 def fill_speed():
