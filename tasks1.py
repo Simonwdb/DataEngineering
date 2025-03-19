@@ -231,12 +231,12 @@ def plot_timezones(airports_df):
     """
     Analyzes different time zones and represents the relative number of flights to them.
     """
-    df["timezone"] = pd.to_numeric(df["tz"], errors='coerce')
+    airports_df["timezone"] = pd.to_numeric(airports_df["tz"], errors='coerce')
 
-    min_tz, max_tz = int(df["timezone"].min()), int(df["timezone"].max())
+    min_tz, max_tz = int(airports_df["timezone"].min()), int(airports_df["timezone"].max())
     all_time_zones = pd.DataFrame({"Time Zone": list(range(min_tz, max_tz + 1))})
 
-    time_zone_counts = df["timezone"].value_counts().reset_index()
+    time_zone_counts = airports_df["timezone"].value_counts().reset_index()
     time_zone_counts.columns = ["Time Zone", "Number of Airports"]
 
     time_zone_counts = all_time_zones.merge(time_zone_counts, on="Time Zone", how="left").fillna(0)
