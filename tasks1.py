@@ -227,31 +227,22 @@ def compute_geodesic_distances(airports_df):
     return filtered_airports
 
 def plot_timezones(airports_df):
-    """
-    Analyzes different time zones and represents the relative number of flights to them.
-    """
     airports_df["timezone"] = pd.to_numeric(airports_df["tz"], errors='coerce')
-
-    min_tz, max_tz = int(airports_df["timezone"].min()), int(airports_df["timezone"].max())
-    all_time_zones = pd.DataFrame({"Time Zone": list(range(min_tz, max_tz + 1))})
 
     time_zone_counts = airports_df["timezone"].value_counts().reset_index()
     time_zone_counts.columns = ["Time Zone", "Number of Airports"]
 
-    time_zone_counts = all_time_zones.merge(time_zone_counts, on="Time Zone", how="left").fillna(0)
-
-    time_zone_counts["Number of Airports"] = time_zone_counts["Number of Airports"].astype(int)
-
-    time_zone_counts = time_zone_counts.sort_values("Time Zone")
+    # Sort by count in descending order
+    time_zone_counts = time_zone_counts.sort_values("Number of Airports", ascending=False)
 
     fig = px.bar(time_zone_counts, x="Time Zone", y="Number of Airports",
-             title="Distribution of Airports by Time Zone",
-             labels={"Time Zone": "Time Zone (UTC Offset)", "Number of Airports": "Count"},
-             text_auto=True,  
-             color="Number of Airports", color_continuous_scale="Viridis")
+                 title="Distribution of Airports by Time Zone",
+                 labels={"Time Zone": "Time Zone (UTC Offset)", "Number of Airports": "Count"},
+                 text_auto=True,
+                 color="Number of Airports", color_continuous_scale="Viridis")
 
-
-    fig.update_layout(xaxis=dict(tickmode='array', tickvals=list(range(min_tz, max_tz + 1))))
+    # Ensure the x-axis shows the correct time zone values
+    fig.update_layout(xaxis=dict(tickmode='array', tickvals=time_zone_counts["Time Zone"]))
 
     return fig
 
