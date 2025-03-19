@@ -178,7 +178,7 @@ def get_statistics(month, day, airport, flights_df):
 a dict describing how many times each plane type was used for that flight
 trajectory. For this task you will need to match the columns tailnum to type
 in the table planes and match this to the tailnum s in the table flights."""
-def get_plane_types(cursor, origin, destination):
+def get_plane_types(origin, destination):
     # Get the plane types for the flight trajectory
     # Return the dict
     query_type_counts = '''
@@ -190,6 +190,7 @@ def get_plane_types(cursor, origin, destination):
     ORDER BY count DESC
     '''
 
+    cursor = data_class.cursor
     cursor.execute(query_type_counts, (origin, destination))
     data = cursor.fetchall()
     df = pd.DataFrame(data, columns=[x[0] for x in cursor.description])
@@ -253,7 +254,7 @@ def get_delayed_flights(flights_df, months, destination):
 """Write a function that takes a destination airport as input and returns the top 5
 airplane manufacturers with planes departing to this destination. For this task,
 you have to combine data from flights and planes."""
-def top_manufacturers(conn, destination):
+def top_manufacturers(destination):
     # Get the top 5 airplane manufacturers with planes departing to the destination
     # Return the top 5
     query = """
@@ -264,6 +265,8 @@ def top_manufacturers(conn, destination):
     GROUP BY p.manufacturer
     ORDER BY count DESC
     LIMIT 5"""
+    
+    conn = data_class.conn
     df = pd.read_sql_query(query, conn, params=[destination])
     return df
 
@@ -294,7 +297,7 @@ in the table planes."""
 import sqlite3
 
 
-def fill_speed(conn):
+def fill_speed():
     """
     Computes the average speed for each plane model using flights data and
     updates the 'speed' column in the planes table.
@@ -307,7 +310,8 @@ def fill_speed(conn):
     GROUP BY f.tailnum, p.model
     """
 
-    cursor = conn.cursor()
+    conn = data_class.conn
+    cursor = conn.cursor
     cursor.execute(query)
     speeds = cursor.fetchall()  # List of (tailnum, model, avg_speed)
 
