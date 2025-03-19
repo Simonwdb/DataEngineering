@@ -93,7 +93,7 @@ st.title('✈ NYC Flight Dashboard')
 
 # Sidebar
 st.sidebar.header('Navigation')
-page = st.sidebar.radio("Go to section:", ['Overview', 'Airport Comparison', 'Delays & Causes', 'Daily Flights', 'Aircraft Types & Speed', 'Weather Impact'])
+page = st.sidebar.radio("Go to section:", ['Overview', 'Departure Airport Comparison', 'Arrival Airport Comparison', 'Delays & Causes', 'Daily Flights', 'Aircraft Types & Speed', 'Weather Impact'])
 
 if page == 'Overview':
     st.header('📊 General Flight Statistics')
@@ -133,8 +133,8 @@ if page == 'Overview':
     # Display the chart in the dashboard
     st.plotly_chart(fig)
 
-elif page == 'Airport Comparison':
-    st.header('🏢 Airport Comparison')
+elif page == 'Arrival Airport Comparison':
+    st.header('🏢 Arrival Airport Comparison')
     departure = st.selectbox('Select departure airport:', flights_df['dest'].unique())
 
     # Check if airports_df is empty
@@ -156,6 +156,9 @@ elif page == 'Airport Comparison':
 
     # fig = px.box(airport_data, y='Arrival Delay (min)', title='Delays per Airport')
     # st.plotly_chart(fig)
+
+elif page == 'Departure Airport Comparison':
+    st.header('🏢 Departure Airport Comparison')
 
 elif page == 'Delays & Causes':
     st.header('⏳ Delays & Causes')
