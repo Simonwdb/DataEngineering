@@ -133,14 +133,9 @@ if page == 'Overview':
     # Display the chart in the dashboard
     st.plotly_chart(fig)
 
-    # 
-    st.subheader('Correlation between Distance vs Arrival Delay')
-    corr_fig = distance_vs_delay()
-    st.plotly_chart(corr_fig)
-
 elif page == 'Arrival Airport Comparison':
     st.header('🏢 Arrival Airport Comparison')
-    departure = st.selectbox('Select departure airport:', flights_df['dest'].unique())
+    departure = st.selectbox('Select arrival airport:', flights_df['dest'].unique())
 
     # Check if airports_df is empty
     if airports_df[airports_df['faa'] == departure].empty:
@@ -242,8 +237,9 @@ elif page == 'Departure Airport Comparison':
 elif page == 'Delays & Causes':
     st.header('⏳ Delays & Causes')
     
-    fig = px.scatter(flights_data, x='Distance (km)', y='Arrival Delay (min)', title='Delay vs Distance')
-    st.plotly_chart(fig)
+    st.subheader('Correlation between Distance vs Arrival Delay')
+    corr_fig = distance_vs_delay()
+    st.plotly_chart(corr_fig)
     
     fig = px.box(flights_data, x='Weather Condition', y='Arrival Delay (min)', title='Delay vs Weather Conditions')
     st.plotly_chart(fig)
