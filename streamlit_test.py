@@ -12,28 +12,57 @@ import pandas as pd
 import plotly.express as px
 import numpy as np
 
-# Dummy data
-def generate_dummy_data():
-    np.random.seed(42)
-    airports = ['JFK', 'LGA', 'EWR', 'SFO', 'LAX', 'ORD', 'ATL', 'MIA']
-    airlines = ['Delta', 'American', 'United', 'JetBlue', 'Southwest']
-    
-    flights = pd.DataFrame({
-        'Flight ID': range(1, 201),
-        'Departure Airport': np.random.choice(airports[:3], 200),
-        'Arrival Airport': np.random.choice(airports[3:], 200),
-        'Airline': np.random.choice(airlines, 200),
-        'Distance (km)': np.random.randint(300, 5000, 200),
-        'Departure Delay (min)': np.random.randint(-10, 120, 200),
-        'Arrival Delay (min)': np.random.randint(-10, 150, 200),
-        'Taxi Time (min)': np.random.randint(5, 40, 200),
-        'Passengers': np.random.randint(50, 300, 200),
-        'Departure Time': pd.date_range('2023-01-01', periods=200, freq='h').time,
-        'Weather Condition': np.random.choice(['Clear', 'Rain', 'Storm', 'Foggy'], 200)
-    })
-    return flights
+# importing the tasks file
+from utilities import *
+from tasks4 import *
+from tasks1 import *
+from tasks3 import *
 
-flights_data = generate_dummy_data()
+# creating the data class
+data_class = Data()
+
+def get_dataframe_safe(data_class, query):
+    try:
+        return data_class.get_dataframe(query)
+    except Exception as e:
+        return pd.DataFrame()
+
+def load_data():    
+    queries = {
+        "flights": "SELECT * FROM flights",
+        "airports": "SELECT * FROM airports",
+        "planes": "SELECT * FROM planes",
+        "airlines": "SELECT * FROM airlines",
+        "weather": "SELECT * FROM weather"
+    }
+    
+    dataframes = {name: get_dataframe_safe(data_class, query) for name, query in queries.items()}
+    
+    return dataframes
+
+def process_flights_data(flights_df, airports_df):
+    if flights_df.empty:
+        return flights_df
+    
+    flights_df = remove_nan_values(flights_df)
+    remove_duplicates(flights_df)
+    convert_time_columns(flights_df)
+    adjust_flight_dates(flights_df)
+    calculate_delays(flights_df)
+    adjust_negative_delays(flights_df)
+    check_delay_equality(flights_df)
+    flights_df = merge_timezone_info(flights_df, airports_df)
+    convert_arr_date_to_gmt5(flights_df)
+    calculate_block_and_taxi_time(flights_df)
+    
+    return flights_df
+
+# prepare the datasets
+data = load_data()
+
+flights_df = process_flights_data(data['flights'], data['airports'])
+
+
 
 # Streamlit UI
 st.set_page_config(page_title='NYC Flight Dashboard', layout='wide')
