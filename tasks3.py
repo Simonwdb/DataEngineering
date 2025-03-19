@@ -401,6 +401,40 @@ def calculate_average_bearings_optimized():
 
     return result
 
+def plot_bearings_compass(average_bearings):
+    # Prepare data for the compass plot
+    bearings = [info['average_bearing'] for info in average_bearings.values()]
+    destinations = [f"{dest} - {info['name']}" for dest, info in average_bearings.items()]
+    
+    # Create a polar plot (compass)
+    fig = go.Figure()
+
+    for bearing, dest in zip(bearings, destinations):
+        fig.add_trace(go.Scatterpolar(
+            r=[1],  # Radial distance (constant for all bearings)
+            theta=[bearing],  # Angle in degrees
+            mode='markers+text',
+            marker=dict(size=10, color='blue'),
+            text=[dest],
+            textposition='top center',
+            name=dest
+        ))
+
+    # Update layout for the compass plot
+    fig.update_layout(
+        polar=dict(
+            angularaxis=dict(
+                rotation=90,  # Rotate the compass so 0° is at the top
+                direction='clockwise',  # Bearings are typically measured clockwise
+                thetaunit='degrees'
+            ),
+            radialaxis=dict(visible=False)  # Hide the radial axis
+        ),
+        title="Average Bearings from NYC Airports to Destinations",
+        showlegend=True
+    )
+
+    return fig
 
 """Write a function that computes the inner product between the flight direction
 and the wind speed of a given flight."""
