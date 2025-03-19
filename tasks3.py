@@ -1,16 +1,7 @@
 from utilities import *
 
 data_class = Data()
-import math
-import sqlite3
-import pandas as pd
-import numpy as np
-import seaborn as sns
-import plotly.express as px
-import matplotlib.pyplot as plt
 from collections import defaultdict
-
-conn = sqlite3.connect(r"Data/flights_database.db")
 
 def test():
     print("Testing the functions from the tasks3.py file")
@@ -393,7 +384,7 @@ def average_bearing(bearings):
     avg_angle_deg = (math.degrees(avg_angle_rad) + 360) % 360
     return avg_angle_deg
 
-cursor = conn.cursor()
+cursor = data_class.cursor
 query = """
 SELECT f.origin, f.dest, o.lat as origin_lat, o.lon as origin_lon, d.lat as dest_lat, d.lon as dest_lon
 FROM flights f
@@ -428,7 +419,7 @@ and the wind speed of a given flight."""
 INDEX = 5
 
 def flight_wind_inner_product(flight_record):
-    cursor = conn.cursor()
+    cursor = data_class.cursor
     
     # Retrieve coordinates for the origin airport.
     cursor.execute("SELECT lat, lon FROM airports WHERE faa = ?", (flight_record['origin'],))
@@ -489,7 +480,7 @@ def flight_wind_inner_product(flight_record):
     return result
 
 def get_flight_record_by_index(index):
-    cursor = conn.cursor()
+    cursor = data_class.cursor
     query = "SELECT * FROM flights LIMIT 1 OFFSET ?"
     cursor.execute(query, (index,))
     row = cursor.fetchone()
@@ -518,7 +509,7 @@ if __name__ == "__main__":
 """Is there a relation between the sign of this inner product and the air time?"""
 
 def flight_wind_inner_product(flight_record):
-    cursor = conn.cursor()
+    cursor = data_class.cursor
     
     # Get origin coordinates.
     cursor.execute("SELECT lat, lon FROM airports WHERE faa = ?", (flight_record['origin'],))
@@ -579,7 +570,7 @@ def flight_wind_inner_product(flight_record):
     }
 
 def get_flight_records(limit=10000):
-    cursor = conn.cursor()
+    cursor = data_class.cursor
     query = "SELECT * FROM flights LIMIT ?"
     cursor.execute(query, (limit,))
     rows = cursor.fetchall()
