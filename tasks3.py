@@ -436,7 +436,7 @@ def flight_wind_inner_product(flight_record):
     dest_lat, dest_lon = dest_coords
     
     # Compute flight bearing.
-    flight_direction = calculate_bearing(origin_lat, origin_lon, dest_lat, dest_lon)
+    flight_direction = calculate_bearing_vectorized(origin_lat, origin_lon, dest_lat, dest_lon)
     
     # Convert dep_time to a four-digit string.
     dep_time_str = str(flight_record['dep_time']).zfill(4)
