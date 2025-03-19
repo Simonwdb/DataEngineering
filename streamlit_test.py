@@ -249,8 +249,9 @@ elif page == 'Delays & Causes':
     fig = px.box(flights_data, x='Weather Condition', y='Arrival Delay (min)', title='Delay vs Weather Conditions')
     st.plotly_chart(fig)
     
-    airline_delay = flights_data.groupby('Airline')['Arrival Delay (min)'].mean().reset_index()
-    fig = px.bar(airline_delay, x='Airline', y='Arrival Delay (min)', title='Average Delay per Airline')
+    # Add the top 10 delayed airlines chart
+    st.subheader('Top 10 Airlines with the Most Delays')
+    fig = plot_top_10_delayed_airlines(flights_df, data['airlines'])
     st.plotly_chart(fig)
 
 elif page == 'Daily Flights':
