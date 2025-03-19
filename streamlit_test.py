@@ -96,12 +96,19 @@ page = st.sidebar.radio("Go to section:", ['Overview', 'Airport Comparison', 'De
 
 if page == 'Overview':
     st.header('📊 General Flight Statistics')
+    average_total_delay = (flights_df['dep_date_delay'] + flights_df['arr_date_delay']).mean()
+    percentage_without_delay = ((flights_df['dep_date_delay'] <= 0) & (flights_df['arr_date_delay'] <= 0)).mean() * 100
     
     col1, col2, col3, col4 = st.columns(4)
-    col1.metric("Total Flights", len(flights_data))
-    col2.metric("Average Delay", f"{flights_data['Arrival Delay (min)'].mean():.1f} min")
-    col3.metric("Unique Destinations", flights_data['Arrival Airport'].nunique())
-    col4.metric("Percentage of Flights Without Delay", f"{(flights_data['Arrival Delay (min)'] <= 0).mean() * 100:.1f}%")
+    col1.metric("Total Flights", len(flights_df))
+    col2.metric("Average Delay", f"{average_total_delay:.1f} min")
+    col3.metric("Unique Destinations", flights_df['dest'].nunique())
+    col4.metric("Percentage of Flights Without Delay", f"{percentage_without_delay:.1f}%")
+
+    # Add the map with airports
+    st.subheader('Airports in the US')
+    airports_fig = plot_airports_by_region(data['airports'])
+    st.plotly_chart(airports_fig)
     
     fig = px.histogram(flights_data, x='Arrival Airport', title='Top Destinations')
     st.plotly_chart(fig)
