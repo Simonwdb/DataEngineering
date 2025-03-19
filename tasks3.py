@@ -80,24 +80,6 @@ def airports_in_nyc(flights_df, airports_df):
     # Save the information in a DataFrame
     return airports_df[airports_df['faa'].isin(flights_df['origin'].unique())]
 
-def airports_in_nyc(flights_df, airports_df):
-    """
-    Identifies all different NYC airports from which flights depart by:
-      - Extracting the unique origin codes from the flights DataFrame (flights_df)
-      - Filtering the airports DataFrame (airports_df) for those codes (using column 'faa')
-    
-    Returns:
-        pd.DataFrame: A DataFrame containing the airport information for the NYC origin airports.
-    """
-    # Get the unique origin airport codes from the flights table
-    origin_codes = flights_df['origin'].unique()
-    print("Origin airport codes:", origin_codes)
-    
-    # Filter the airports DataFrame to include only airports present in the flights origins
-    nyc_airports_df = airports_df[airports_df['faa'].isin(origin_codes)].copy()
-    
-    return nyc_airports_df
-
 """Write a function that takes a month and day and an airport in NYC as input,
 and produces a figure similar to the one from part 1 containing all destinations
 of flights on that day."""
