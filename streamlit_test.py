@@ -159,8 +159,6 @@ elif page == 'Arrival Airport Comparison':
         fig = plot_flight_from_nyc(departure, data['airports'])
         st.plotly_chart(fig)
 
-    # fig = px.box(airport_data, y='Arrival Delay (min)', title='Delays per Airport')
-    # st.plotly_chart(fig)
 
 elif page == 'Departure Airport Comparison':
     st.header('🏢 Departure Airport Comparison')
