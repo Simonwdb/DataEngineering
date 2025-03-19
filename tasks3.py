@@ -122,8 +122,8 @@ def plot_destinations(month, day, origin_airport, flights_df, airports_df):
                          lat="lat", lon="lon",
                          hover_name="name",
                          size="count",
-                         title=f"Destinations from {origin_airport} on {month}/{day}",
-                         projection="natural earth")
+                         title=f"Destinations from {airports_df[airports_df['faa'] == origin_airport]['name'].values[0]} on {month}/{day}",
+                         projection="albers usa")
     
     return fig
     
