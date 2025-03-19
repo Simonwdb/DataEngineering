@@ -110,8 +110,27 @@ if page == 'Overview':
     st.subheader('Airports in the US')
     airports_fig = plot_airports_by_region(data['airports'])
     st.plotly_chart(airports_fig)
-    
-    fig = px.histogram(flights_data, x='Arrival Airport', title='Top Destinations')
+
+    # Get the top 10 destinations based on frequency and sort them
+    top_10_destinations = flights_df['dest'].value_counts().nlargest(10).sort_values(ascending=False)
+
+    # Create a DataFrame for the top 10 destinations
+    top_10_df = pd.DataFrame({'dest': top_10_destinations.index, 'count': top_10_destinations.values})
+
+    # Create the histogram for the top 10 destinations
+    fig = px.bar(top_10_df, x='dest', y='count', title='Top 10 Destinations', text='count')
+
+    # Update the layout to show the count values above the bars
+    fig.update_traces(textposition='outside')
+    fig.update_layout(
+        xaxis_title='Destination',
+        yaxis_title='Number of Flights',
+        showlegend=False,
+        height=600,
+        width=1000
+    )
+
+    # Display the chart in the dashboard
     st.plotly_chart(fig)
 
 elif page == 'Airport Comparison':
