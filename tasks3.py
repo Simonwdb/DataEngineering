@@ -342,26 +342,21 @@ def fill_speed():
 """The wind direction is given in weather in degrees. Compute for each airport
 the direction the plane follows when flying there from New York."""
 
-def calculate_bearing(lat1, lon1, lat2, lon2):
+def calculate_bearing_vectorized(lat1, lon1, lat2, lon2):
     """
-    Calculate the avergage from point (lat1, lon1)
-    to point (lat2, lon2) using the formula:
-    
-    θ = atan2( sin(Δlon)*cos(lat2),
-               cos(lat1)*sin(lat2) - sin(lat1)*cos(lat2)*cos(Δlon) )
-               
-    The result is converted from radians to degrees and normalized to [0, 360).
+    Calculate the bearing from point (lat1, lon1) to point (lat2, lon2) using vectorized operations.
+    The result is in degrees and normalized to [0, 360).
     """
     # Convert degrees to radians
-    lat1, lon1, lat2, lon2 = map(math.radians, [lat1, lon1, lat2, lon2])
+    lat1, lon1, lat2, lon2 = np.radians(lat1), np.radians(lon1), np.radians(lat2), np.radians(lon2)
     delta_lon = lon2 - lon1
     
-    x = math.sin(delta_lon) * math.cos(lat2)
-    y = math.cos(lat1) * math.sin(lat2) - math.sin(lat1) * math.cos(lat2) * math.cos(delta_lon)
+    x = np.sin(delta_lon) * np.cos(lat2)
+    y = np.cos(lat1) * np.sin(lat2) - np.sin(lat1) * np.cos(lat2) * np.cos(delta_lon)
     
-    initial_bearing = math.atan2(x, y)
+    initial_bearing = np.arctan2(x, y)
     # Convert bearing from radians to degrees and normalize to 0-360
-    bearing_degrees = (math.degrees(initial_bearing) + 360) % 360
+    bearing_degrees = (np.degrees(initial_bearing) + 360) % 360
     return bearing_degrees
 
 def average_bearing(bearings):
