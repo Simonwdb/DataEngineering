@@ -61,6 +61,7 @@ def process_flights_data(flights_df, airports_df):
 data = load_data()
 
 flights_df = process_flights_data(data['flights'], data['airports'])
+airports_df = data['airports']
 
 # Dummy data
 def generate_dummy_data():
@@ -115,14 +116,27 @@ if page == 'Overview':
 
 elif page == 'Airport Comparison':
     st.header('🏢 Airport Comparison')
-    departure = st.selectbox('Select departure airport:', flights_data['Departure Airport'].unique())
-    
-    airport_data = flights_data[flights_data['Departure Airport'] == departure]
-    st.metric("Average Delay", f"{airport_data['Arrival Delay (min)'].mean():.1f} min")
-    st.metric("Average Taxi Time", f"{airport_data['Taxi Time (min)'].mean():.1f} min")
-    
-    fig = px.box(airport_data, y='Arrival Delay (min)', title='Delays per Airport')
-    st.plotly_chart(fig)
+    departure = st.selectbox('Select departure airport:', flights_df['dest'].unique())
+
+    # Check if airports_df is empty
+    if airports_df[airports_df['faa'] == departure].empty:
+        st.warning("No matching FAA codes found in Airports dataset.")
+    else:
+        airport_data = flights_df[flights_df['dest'] == departure]
+        average_airport_delay = (airport_data['dep_date_delay'] + airport_data['arr_date_delay']).mean()
+        percentage_airport_delay = ((airport_data['dep_date_delay'] <= 0) & (airport_data['arr_date_delay'] <= 0)).mean() * 100
+        
+        col1, col2, col3, col4 = st.columns(4)
+        col1.metric(f"Total Flights to: {airports_df[airports_df['faa'] == departure]['name'].values[0]}", len(airport_data))
+        col2.metric("Average Delay", f"{average_airport_delay:.1f} min")
+        col3.metric("Average Taxi Time", f"{airport_data['taxi_time'].mean():.1f} min")
+        col4.metric("Percentage of Flights Without Delay", f"{percentage_airport_delay:.1f}%")
+        
+        fig = plot_flight_from_nyc(departure, data['airports'])
+        st.plotly_chart(fig)
+
+    # fig = px.box(airport_data, y='Arrival Delay (min)', title='Delays per Airport')
+    # st.plotly_chart(fig)
 
 elif page == 'Delays & Causes':
     st.header('⏳ Delays & Causes')
