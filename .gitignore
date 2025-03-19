@@ -2,3 +2,4 @@ testFile.ipynb
 .DS_Store
 __pychache__
 testFile2.ipynb
+__pycache__/
