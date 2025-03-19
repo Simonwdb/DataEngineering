@@ -380,33 +380,49 @@ def average_bearing(bearings):
     avg_angle_deg = (math.degrees(avg_angle_rad) + 360) % 360
     return avg_angle_deg
 
-cursor = data_class.cursor
-query = """
-SELECT f.origin, f.dest, o.lat as origin_lat, o.lon as origin_lon, d.lat as dest_lat, d.lon as dest_lon
-FROM flights f
-JOIN airports o ON f.origin = o.faa
-JOIN airports d ON f.dest = d.faa;
-"""
-cursor.execute(query)
-rows = cursor.fetchall()
 
-dest_bearings = defaultdict(list)
+def calculate_average_bearings(data_class):
+    """
+    Calculates the average bearing from all NYC departure airports to each destination airport.
+    Returns a dictionary with destination FAA codes as keys and average bearings as values.
+    """
+    cursor = data_class.cursor
 
-for origin, dest, origin_lat, origin_lon, dest_lat, dest_lon in rows:
-    bearing = calculate_bearing(origin_lat, origin_lon, dest_lat, dest_lon)
-    dest_bearings[dest].append(bearing)
+    # Query to get origin, destination, and their coordinates
+    query = """
+    SELECT f.origin, f.dest, o.lat as origin_lat, o.lon as origin_lon, d.lat as dest_lat, d.lon as dest_lon
+    FROM flights f
+    JOIN airports o ON f.origin = o.faa
+    JOIN airports d ON f.dest = d.faa;
+    """
+    cursor.execute(query)
+    rows = cursor.fetchall()
 
-# Compute the average bearing for each destination airport.
-# The average is computed properly using vector averaging.
-average_bearings = {dest: average_bearing(bearings) for dest, bearings in dest_bearings.items()}
+    # Dictionary to store bearings for each destination
+    dest_bearings = defaultdict(list)
 
-cursor.execute("SELECT faa, name FROM airports")
-airport_names = dict(cursor.fetchall())
+    # Calculate bearings for each flight
+    for origin, dest, origin_lat, origin_lon, dest_lat, dest_lon in rows:
+        bearing = calculate_bearing(origin_lat, origin_lon, dest_lat, dest_lon)
+        dest_bearings[dest].append(bearing)
 
-print("Average Bearing from all NYC departure airports to each destination airport:")
-for dest, avg_bearing in average_bearings.items():
-    name = airport_names.get(dest, "Unknown")
-    print(f"Airport: {dest} - {name:40s} | Average Bearing: {avg_bearing:.2f}°")
+    # Compute the average bearing for each destination airport using vector averaging
+    average_bearings = {dest: average_bearing(bearings) for dest, bearings in dest_bearings.items()}
+
+    # Get airport names for display
+    cursor.execute("SELECT faa, name FROM airports")
+    airport_names = dict(cursor.fetchall())
+
+    # Create a dictionary with destination FAA codes, names, and average bearings
+    result = {
+        dest: {
+            "name": airport_names.get(dest, "Unknown"),
+            "average_bearing": avg_bearing
+        }
+        for dest, avg_bearing in average_bearings.items()
+    }
+
+    return result
 
 
 """Write a function that computes the inner product between the flight direction
