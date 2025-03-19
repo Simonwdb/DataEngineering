@@ -239,6 +239,7 @@ def average_delay_per_airline(flights_df):
     )
     # ASK: do we need to return the figure or do we need to use fig.show() in this function?
     return fig
+
 """Write a function that takes as input a range of months and a destination and
 returns the amount of delayed flights to that destination."""
 def get_delayed_flights(flights_df, month, destination):
@@ -274,21 +275,32 @@ def top_manufacturers(destination):
 the arrival delay time."""
 def distance_vs_delay():
     conn = data_class.conn
-    # Investigate the relationship between the distance of a flight and the arrival delay time
-    querry = """select distance, arr_delay from flights where arr_delay is not null"""
-    df = pd.read_sql_query(querry, conn)
+    
+    # Query to get distance and arrival delay
+    query = """SELECT distance, arr_delay FROM flights WHERE arr_delay IS NOT NULL"""
+    df = pd.read_sql_query(query, conn)
 
+    # Calculate the correlation
     correlation = df['distance'].corr(df['arr_delay'])
 
-    plt.figure(figsize=(8, 6))
-    plt.scatter(df['distance'], df['arr_delay'], alpha=0.5)
-    plt.xlabel("Distance (km)")
-    plt.ylabel("Arrival Delay (minutes)")
-    plt.title(f"Distance vs. Arrival Delay (corr = {correlation:.2f})")
-    plt.show()
-    #further inspection nessessary
+    # Create a Plotly scatter plot
+    fig = px.scatter(
+        df,
+        x='distance',
+        y='arr_delay',
+        title=f"Distance vs. Arrival Delay (corr = {correlation:.2f})",
+        labels={'distance': 'Distance (km)', 'arr_delay': 'Arrival Delay (minutes)'},
+        opacity=0.5
+    )
 
-    return correlation
+    # Update layout for better readability
+    fig.update_layout(
+        xaxis_title="Distance (km)",
+        yaxis_title="Arrival Delay (minutes)",
+        showlegend=False
+    )
+
+    return fig
 
 
 """Group the table flights by plane model using the tailnum. For each model,
