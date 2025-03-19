@@ -246,7 +246,9 @@ elif page == 'Delays & Causes':
     corr_fig = distance_vs_delay()
     st.plotly_chart(corr_fig)
     
-    fig = px.box(flights_data, x='Weather Condition', y='Arrival Delay (min)', title='Delay vs Weather Conditions')
+    # Add the enhanced boxplot for delays vs visibility by origin
+    st.subheader('Flight Delays vs Visibility Conditions by Origin Airport')
+    fig = plot_delay_vs_visibility(flights_df, data['weather'])
     st.plotly_chart(fig)
     
     # Add the top 10 delayed airlines chart
