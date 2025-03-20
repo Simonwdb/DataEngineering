@@ -62,9 +62,13 @@ data = load_data()
 
 flights_df = process_flights_data(data['flights'], data['airports'])
 airports_df = data['airports']
+planes_df = data['planes']
 
 # Data wrangling for dataframes that need to be calculated once
 flights_df['total_delay'] = flights_df['dep_date_delay'] + flights_df['arr_date_delay']
+planes_df['speed'] = planes_df['speed'].round(2)
+avg_speed_df = planes_df.groupby('manufacturer', as_index=False)['speed'].mean()
+avg_speed_df.rename(columns={'speed': 'avg_speed'}, inplace=True)
 
 # Dummy data
 def generate_dummy_data():
@@ -268,8 +272,7 @@ elif page == 'Daily Flights':
 elif page == 'Aircraft Types & Speed':
     st.header('🚀 Aircraft Types & Speed')
     
-    flights_data['Speed (km/h)'] = flights_data['Distance (km)'] / (np.random.randint(1, 6, len(flights_data)))
-    fig = px.histogram(flights_data, x='Speed (km/h)', title='Average Speed per Aircraft')
+    fig = plot_average_speed_per_manufacturer(avg_speed_df)
     st.plotly_chart(fig)
 
 elif page == 'Weather Impact':
