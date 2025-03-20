@@ -74,30 +74,6 @@ avg_speed_df.rename(columns={'speed': 'avg_speed'}, inplace=True)
 min_date = pd.to_datetime(flights_df['sched_dep_date'].min()).date()
 max_date = pd.to_datetime(flights_df['arr_date'].max()).date()
 
-# Dummy data
-def generate_dummy_data():
-    np.random.seed(42)
-    airports = ['JFK', 'LGA', 'EWR', 'SFO', 'LAX', 'ORD', 'ATL', 'MIA']
-    airlines = ['Delta', 'American', 'United', 'JetBlue', 'Southwest']
-    
-    flights = pd.DataFrame({
-        'Flight ID': range(1, 201),
-        'Departure Airport': np.random.choice(airports[:3], 200),
-        'Arrival Airport': np.random.choice(airports[3:], 200),
-        'Airline': np.random.choice(airlines, 200),
-        'Distance (km)': np.random.randint(300, 5000, 200),
-        'Departure Delay (min)': np.random.randint(-10, 120, 200),
-        'Arrival Delay (min)': np.random.randint(-10, 150, 200),
-        'Taxi Time (min)': np.random.randint(5, 40, 200),
-        'Passengers': np.random.randint(50, 300, 200),
-        'Departure Time': pd.date_range('2023-01-01', periods=200, freq='h').time,
-        'Weather Condition': np.random.choice(['Clear', 'Rain', 'Storm', 'Foggy'], 200)
-    })
-    return flights
-
-flights_data = generate_dummy_data()
-
-
 # Streamlit UI
 st.set_page_config(page_title='NYC Flight Dashboard', layout='wide')
 st.title('✈ NYC Flight Dashboard')
@@ -295,7 +271,6 @@ elif page == 'Daily Flights':
     st.subheader(f"Destinations from NYC on {selected_date}")
     fig = plot_flight_from_nyc(day_destinations, airports_df)
     st.plotly_chart(fig)
-
 
 elif page == 'Aircraft Types & Speed':
     st.header('🚀 Aircraft Types & Speed')
