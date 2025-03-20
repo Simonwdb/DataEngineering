@@ -406,6 +406,25 @@ def fill_speed():
 
     conn.commit()  # Save changes to database
 
+def plot_average_speed_per_manufacturer(avg_speed_df):
+    fig = px.bar(
+        avg_speed_df,
+        x='manufacturer',
+        y='avg_speed',
+        title='Average Speed per Aircraft Manufacturer',
+        labels={'avg_speed': 'Average Speed (km/h)', 'manufacturer': 'Manufacturer'},
+        text_auto=True
+    )
+    fig.update_traces(textposition='outside')
+    fig.update_layout(
+        xaxis_title='Manufacturer',
+        yaxis_title='Average Speed (km/h)',
+        showlegend=False,
+        height=600,
+        width=1000
+    )
+    return fig
+
 """The wind direction is given in weather in degrees. Compute for each airport
 the direction the plane follows when flying there from New York."""
 
