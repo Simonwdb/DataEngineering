@@ -1,6 +1,6 @@
 from utilities import *
+from utilities import data_class
 
-data_class = Data()
 from collections import defaultdict
 
 """Verify that the distances you computed in part 1 are roughly equal to the dis-
