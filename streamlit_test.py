@@ -258,18 +258,44 @@ elif page == 'Delays & Causes':
     fig = plot_top_10_delayed_airlines(flights_df, data['airlines'])
     st.plotly_chart(fig)
 
-    # TO-DO:
-    # plot een grafiek met daarin de vliegvelden met het hoogste delay, en vliegvelden met het laagste delay (gemiddeld)
 
 elif page == 'Daily Flights':
     st.header('📅 Flights on a Specific Day')
-    date = st.date_input('Select a date', pd.to_datetime('2023-01-01'))
+    # Date input with a calendar widget
+    selected_date = st.date_input(
+        'Select a date:',
+        min_value=min_date,
+        max_value=max_date,
+        value=min_date  # Default to the earliest date
+    )
     
-    day_flights = flights_data.sample(10) 
-    st.write(day_flights)
-    
-    fig = px.scatter_geo(day_flights, locations='Arrival Airport', title='Destinations of the Day')
+    day_df = flights_df[flights_df['sched_dep_date'].dt.date== selected_date]
+    day_destinations = day_df['dest'].unique()
+    day_num_destinations = day_df['dest'].nunique()
+
+    # Calculate the amount of passengers that can travel on selected_date
+    day_df = day_df.merge(planes_df[['tailnum', 'seats']], on='tailnum', how='left')
+    passenger_per_dest_df = day_df.groupby('dest')['seats'].sum().reset_index()
+    passenger_per_dest_df = passenger_per_dest_df.sort_values(by='seats', ascending=False)
+    passenger_amount = passenger_per_dest_df['seats'].sum()
+    flights_amount = day_df['flight'].nunique()
+
+    # Find the most popular destination (the one with the most passengers)
+    favorite_destination = passenger_per_dest_df.iloc[0]['dest'] if not passenger_per_dest_df.empty else "N/A"
+    favorite_destination_passengers = passenger_per_dest_df.iloc[0]['seats'] if not passenger_per_dest_df.empty else 0
+
+    col1, col2, col3, col4, col5 = st.columns(5)
+    col1.metric("Total Flights", flights_amount)
+    col2.metric("Total Passengers", int(passenger_amount))
+    col3.metric("Unique Destinations", day_num_destinations)
+    col4.metric("Top Destination", favorite_destination)
+    col5.metric("Passengers to Top Destination", int(favorite_destination_passengers))
+
+    # Plot the map with the multiple destinations
+    st.subheader(f"Destinations from NYC on {selected_date}")
+    fig = plot_flight_from_nyc(day_destinations, airports_df)
     st.plotly_chart(fig)
+
 
 elif page == 'Aircraft Types & Speed':
     st.header('🚀 Aircraft Types & Speed')
