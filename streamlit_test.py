@@ -63,6 +63,9 @@ data = load_data()
 flights_df = process_flights_data(data['flights'], data['airports'])
 airports_df = data['airports']
 
+# Data wrangling for dataframes that need to be calculated once
+flights_df['total_delay'] = flights_df['dep_date_delay'] + flights_df['arr_date_delay']
+
 # Dummy data
 def generate_dummy_data():
     np.random.seed(42)
@@ -243,12 +246,7 @@ elif page == 'Delays & Causes':
     st.subheader('Correlation between Distance vs Arrival Delay')
     corr_fig = distance_vs_delay()
     st.plotly_chart(corr_fig)
-    
-    # Add the enhanced boxplot for delays vs visibility by origin
-    st.subheader('Flight Delays vs Visibility Conditions by Origin Airport')
-    fig = plot_delay_vs_visibility(flights_df, data['weather'])
-    st.plotly_chart(fig)
-    
+       
     # Add the top 10 delayed airlines chart
     st.subheader('Top 10 Airlines with the Most Delays')
     fig = plot_top_10_delayed_airlines(flights_df, data['airlines'])
