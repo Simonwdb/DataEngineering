@@ -254,6 +254,9 @@ elif page == 'Delays & Causes':
     fig = plot_top_10_delayed_airlines(flights_df, data['airlines'])
     st.plotly_chart(fig)
 
+    # TO-DO:
+    # plot een grafiek met daarin de vliegvelden met het hoogste delay, en vliegvelden met het laagste delay (gemiddeld)
+
 elif page == 'Daily Flights':
     st.header('📅 Flights on a Specific Day')
     date = st.date_input('Select a date', pd.to_datetime('2023-01-01'))
