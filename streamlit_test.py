@@ -70,6 +70,10 @@ planes_df['speed'] = planes_df['speed'].round(2)
 avg_speed_df = planes_df.groupby('manufacturer', as_index=False)['speed'].mean()
 avg_speed_df.rename(columns={'speed': 'avg_speed'}, inplace=True)
 
+# Determine the minimum and maximum dates from dep_date and arr_date columns
+min_date = pd.to_datetime(flights_df['sched_dep_date'].min()).date()
+max_date = pd.to_datetime(flights_df['arr_date'].max()).date()
+
 # Dummy data
 def generate_dummy_data():
     np.random.seed(42)
@@ -174,9 +178,7 @@ elif page == 'Departure Airport Comparison':
     departure = st.selectbox('Select departure airport:', flights_df['origin'].unique())
     departure_name = airports_df[airports_df['faa'] == departure]['name'].values[0]
 
-    # Determine the minimum and maximum dates from dep_date and arr_date columns
-    min_date = pd.to_datetime(flights_df['sched_dep_date'].min()).date()
-    max_date = pd.to_datetime(flights_df['arr_date'].max()).date()
+
 
     # Date input with a calendar widget
     selected_date = st.date_input(
