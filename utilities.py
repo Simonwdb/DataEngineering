@@ -23,3 +23,5 @@ class Data:
         data_rows = self.cursor.fetchall()
         df = pd.DataFrame(data_rows, columns=[col[0] for col in self.cursor.description])
         return df
+    
+data_class = Data()
