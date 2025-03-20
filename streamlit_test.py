@@ -19,7 +19,7 @@ from tasks1 import *
 from tasks3 import *
 
 # creating the data class
-data_class = Data()
+from utilities import data_class
 
 def get_dataframe_safe(data_class, query):
     try:
