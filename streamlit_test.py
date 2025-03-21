@@ -88,12 +88,12 @@ flights_data = generate_dummy_data()
 
 
 # Streamlit UI
-st.set_page_config(page_title='NYC Flight Dashboard', layout='wide')
-st.title('✈ NYC Flight Dashboard')
+st.set_page_config(page_title='NYC 2023 Flight Dashboard', layout='wide')
+st.title('✈ NYC 2023 Flight Dashboard')
 
 # Sidebar
 st.sidebar.header('Navigation')
-page = st.sidebar.radio("Go to section:", ['Overview', 'Departure Airport Comparison', 'Arrival Airport Comparison', 'Delays & Causes', 'Daily Flights', 'Aircraft Types & Speed', 'Weather Impact'])
+page = st.sidebar.radio("Go to section:", ['Overview', 'Departure Airport Comparison', 'Arrival Airport Comparison', 'Departure-Arrival Analysis', 'Delays & Causes', 'Daily Flights', 'Aircraft Types & Speed', 'Weather Impact'])
 
 if page == 'Overview':
     st.header('📊 General Flight Statistics')
@@ -237,6 +237,47 @@ elif page == 'Departure Airport Comparison':
         # Display the chart
         st.plotly_chart(fig)
 
+elif page == 'Departure-Arrival Analysis':
+    st.header('🌍 Departure-Arrival Analysis')
+
+    # Select departure and arrival airport
+    departure_airport = st.selectbox('Select departure airport:', flights_df['origin'].unique())
+    arrival_airport = st.selectbox('Select arrival airport:', flights_df['dest'].unique())
+
+    # Filter dataset based on selected airports
+    route_data = flights_df[(flights_df['origin'] == departure_airport) & (flights_df['dest'] == arrival_airport)]
+
+    if route_data.empty:
+        st.warning("No flights found between the selected airports.")
+    else:
+        # Route statistics
+        total_flights = len(route_data)
+        avg_departure_delay = route_data['dep_date_delay'].mean()
+        avg_arrival_delay = route_data['arr_date_delay'].mean()
+        avg_taxi_time = route_data['taxi_time'].mean()
+        most_frequent_airline = route_data['carrier'].mode()[0]  # Get the most common airline
+
+        # Display metrics
+        col1, col2, col3, col4, col5 = st.columns(5)
+        col1.metric("Total Flights", total_flights)
+        col2.metric("Avg Departure Delay", f"{avg_departure_delay:.1f} min")
+        col3.metric("Avg Arrival Delay", f"{avg_arrival_delay:.1f} min")
+        col4.metric("Avg Taxi Time", f"{avg_taxi_time:.1f} min")
+        col5.metric("Most Frequent Airline", most_frequent_airline)
+
+        # Visualization: Histogram of Delays
+        st.subheader('Distribution of Delays for this Route')
+        fig = px.histogram(route_data, x=['dep_date_delay', 'arr_date_delay'], title="Departure & Arrival Delay Distribution")
+        st.plotly_chart(fig)
+
+        # Visualization: Flight Volume Over Time
+        st.subheader('Flight Volume Over Time')
+        route_data['date'] = pd.to_datetime(route_data['sched_dep_date'])
+        daily_flights = route_data.groupby(route_data['date'].dt.date).size().reset_index(name='count')
+        time_fig = px.line(daily_flights, x='date', y='count', title="Daily Flight Volume")
+        st.plotly_chart(time_fig)
+
+
 elif page == 'Delays & Causes':
     st.header('⏳ Delays & Causes')
     
@@ -294,4 +335,4 @@ elif page == 'Weather Impact':
         st.warning("No valid flight records found for analysis.")
     
 
-st.sidebar.write('Created for the analysis of NYC flights')
+st.sidebar.write('Created for the analysis of flights from NYC')
