@@ -240,9 +240,21 @@ elif page == 'Departure Airport Comparison':
 elif page == 'Departure-Arrival Analysis':
     st.header('🌍 Departure-Arrival Analysis')
 
-    # Select departure and arrival airport
-    departure_airport = st.selectbox('Select departure airport:', flights_df['origin'].unique())
-    arrival_airport = st.selectbox('Select arrival airport:', flights_df['dest'].unique())
+    # Select departure and arrival airport with default values
+    origin_options = flights_df['origin'].unique()
+    dest_options = flights_df['dest'].unique()
+
+    departure_airport = st.selectbox(
+        'Select departure airport:',
+        origin_options,
+        index=origin_options.tolist().index('JFK') if 'JFK' in origin_options else 0
+    )
+
+    arrival_airport = st.selectbox(
+        'Select arrival airport:',
+        dest_options,
+        index=dest_options.tolist().index('ATL') if 'ATL' in dest_options else 0
+    )
 
     # Filter dataset based on selected airports
     route_data = flights_df[(flights_df['origin'] == departure_airport) & (flights_df['dest'] == arrival_airport)]
@@ -252,13 +264,13 @@ elif page == 'Departure-Arrival Analysis':
     else:
         # Route statistics
         total_flights = len(route_data)
-        #avg_delay = route_data['total_delay'].mean()
+        avg_delay = route_data['total_delay'].mean()
         most_frequent_airline = route_data['carrier'].mode()[0]  # Get the most common airline
 
         # Display metrics
-        col1, col2, col3 = st.columns([2,2,2])
+        col1, col2, col3 = st.columns([2, 2, 2])
         col1.metric("Total Flights", total_flights)
-        #col2.metric("Avg Delay", f"{avg_delay:.1f} min")
+        col2.metric("Average Delay", f"{avg_delay:.1f} min")
         col3.metric("Most Frequent Airline", most_frequent_airline)
 
         # Visualization: Flight Volume Over Time
@@ -266,12 +278,15 @@ elif page == 'Departure-Arrival Analysis':
         route_data['date'] = pd.to_datetime(route_data['sched_dep_date'])
         daily_flights = route_data.groupby(route_data['date'].dt.date).size().reset_index(name='count')
         time_fig = px.line(daily_flights, x='date', y='count', title="Daily Flight Volume")
+        time_fig.update_layout(
+                xaxis_title='Date',
+                yaxis_title='Number of Flights',
+                showlegend=False
+            )
         st.plotly_chart(time_fig)
 
         # Visualization: Average Total Delay Over Time
         st.subheader('Average Total Delay Over Time')
-        route_data['date'] = pd.to_datetime(route_data['sched_dep_date'])
-        # Group by date and compute average total delay
         daily_delay = (
             route_data
             .groupby(route_data['date'].dt.date)['total_delay']
@@ -287,25 +302,19 @@ elif page == 'Departure-Arrival Analysis':
         )
         st.plotly_chart(fig)
 
-
-        # Visualization: Histogram of Delays
-        st.subheader('Distribution of Delays for this Route')
-        fig = px.histogram(route_data, x=['Departure delay', 'Arrival delay'], title="Departure & Arrival Delay Distribution")
-        st.plotly_chart(fig)
-
         # Visualization: Top Aircraft Types
         st.subheader("Top Aircraft Types on This Route")
         if 'tailnum' in route_data.columns:
             plane_models = get_plane_model_counts(departure_airport, arrival_airport)
             plane_model_df = pd.DataFrame(list(plane_models.items()), columns=['Plane Model', 'Count'])
             plane_model_df = plane_model_df.nlargest(10, 'Count')
-            fig = px.bar(plane_model_df, x='Plane Model', y='Count', text='Count')
+            fig = px.bar(plane_model_df, x='Plane Model', y='Count', text='Count', title='Top Aircraft by Number of Flights')
             fig.update_traces(textposition='outside')
             st.plotly_chart(fig)
         else:
             st.info("Aircraft type data is not available for this route.")
 
-        # Visualization: Top Airlines 
+        # Visualization: Top Airlines
         st.subheader("Top Airlines on This Route")
         if 'carrier' in route_data.columns:
             airline_counts = route_data['carrier'].value_counts().reset_index()
@@ -330,6 +339,7 @@ elif page == 'Departure-Arrival Analysis':
             st.info("Airline data is not available for this route.")
 
 
+
 elif page == 'Delays & Causes':
     st.header('⏳ Delays & Causes')
     
@@ -352,13 +362,53 @@ elif page == 'Delays & Causes':
 
 elif page == 'Daily Flights':
     st.header('📅 Flights on a Specific Day')
+
     date = st.date_input('Select a date', pd.to_datetime('2023-01-01'))
-    
-    day_flights = flights_data.sample(10) 
-    st.write(day_flights)
-    
-    fig = px.scatter_geo(day_flights, locations='Arrival Airport', title='Destinations of the Day')
+
+    # 🧠 Convert and filter by selected date if you want real-time filtering
+    # For now still sampling from dummy data
+    day_flights = flights_data.sample(10)
+
+    # Show flight stats
+    st.subheader("✈️ Sample Flights on This Day")
+    st.dataframe(day_flights[['Departure Airport', 'Arrival Airport', 'Airline',
+                              'Departure Delay (min)', 'Arrival Delay (min)',
+                              'Taxi Time (min)', 'Passengers']])
+
+    # Merge with airport coordinates
+    merged = pd.merge(
+        day_flights,
+        airports_df,
+        left_on='Arrival Airport',
+        right_on='faa',
+        how='left'
+    )
+
+    # Plot destinations
+    st.subheader("🌍 Destinations of the Day")
+    fig = px.scatter_geo(
+        merged,
+        lat='lat',
+        lon='lon',
+        hover_name='name',
+        title='Destinations of the Day',
+        projection='natural earth'
+    )
     st.plotly_chart(fig)
+
+    # Add summary stats below
+    st.subheader("📊 Summary Statistics")
+    avg_dep_delay = day_flights['Departure Delay (min)'].mean()
+    avg_arr_delay = day_flights['Arrival Delay (min)'].mean()
+    avg_taxi = day_flights['Taxi Time (min)'].mean()
+    total_passengers = day_flights['Passengers'].sum()
+
+    col1, col2, col3, col4 = st.columns(4)
+    col1.metric("Avg Departure Delay", f"{avg_dep_delay:.1f} min")
+    col2.metric("Avg Arrival Delay", f"{avg_arr_delay:.1f} min")
+    col3.metric("Avg Taxi Time", f"{avg_taxi:.1f} min")
+    col4.metric("Total Passengers", total_passengers)
+
 
 elif page == 'Aircraft Types & Speed':
     st.header('🚀 Aircraft Types & Speed')

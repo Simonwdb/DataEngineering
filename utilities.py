@@ -15,7 +15,7 @@ class Data:
         self.make_connection()
 
     def make_connection(self):
-        self.conn = sqlite3.connect(self.db_path)
+        self.conn = sqlite3.connect(self.db_path, check_same_thread=False) # important!
         self.cursor = self.conn.cursor()
 
     def get_dataframe(self, query, ):
