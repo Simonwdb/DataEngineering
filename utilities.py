@@ -15,7 +15,7 @@ class Data:
         self.make_connection()
 
     def make_connection(self):
-        self.conn = sqlite3.connect(self.db_path, check_same_thread=False) #important to add this False!
+        self.conn = sqlite3.connect(self.db_path)
         self.cursor = self.conn.cursor()
 
     def get_dataframe(self, query, ):
@@ -23,3 +23,5 @@ class Data:
         data_rows = self.cursor.fetchall()
         df = pd.DataFrame(data_rows, columns=[col[0] for col in self.cursor.description])
         return df
+    
+data_class = Data()
