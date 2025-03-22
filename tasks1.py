@@ -236,7 +236,7 @@ def plot_timezones(airports_df):
     time_zone_counts = time_zone_counts.sort_values("Number of Airports", ascending=False)
 
     fig = px.bar(time_zone_counts, x="Time Zone", y="Number of Airports",
-                 title="Distribution of Airports by Time Zone",
+                 title="Distribution of Arrival Airports by Time Zone",
                  labels={"Time Zone": "Time Zone (UTC Offset)", "Number of Airports": "Count"},
                  text_auto=True,
                  color="Number of Airports", color_continuous_scale="Viridis")

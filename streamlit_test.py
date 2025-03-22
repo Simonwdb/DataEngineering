@@ -104,7 +104,7 @@ if page == 'Overview':
     col1.metric("Total Flights", len(flights_df))
     col2.metric("Average Delay", f"{average_total_delay:.1f} min")
     col3.metric("Unique Destinations", flights_df['dest'].nunique())
-    col4.metric("Percentage of Flights Without Delay", f"{percentage_without_delay:.1f}%")
+    col4.metric("Flights Without Delay", f"{percentage_without_delay:.1f}%")
 
     # Add the map with airports
     st.subheader('Airports in the US')
@@ -112,7 +112,7 @@ if page == 'Overview':
     st.plotly_chart(airports_fig)
 
     # Add the timezone distribution plot
-    st.subheader('Distribution of Airports by Time Zone')
+    st.subheader('Distribution of Arrival Airports by Time Zone')
     timezone_fig = plot_timezones(data['airports'])
     st.plotly_chart(timezone_fig)
 
@@ -252,23 +252,14 @@ elif page == 'Departure-Arrival Analysis':
     else:
         # Route statistics
         total_flights = len(route_data)
-        avg_departure_delay = route_data['dep_date_delay'].mean()
-        avg_arrival_delay = route_data['arr_date_delay'].mean()
-        avg_taxi_time = route_data['taxi_time'].mean()
+        #avg_delay = route_data['total_delay'].mean()
         most_frequent_airline = route_data['carrier'].mode()[0]  # Get the most common airline
 
         # Display metrics
-        col1, col2, col3, col4, col5 = st.columns(5)
+        col1, col2, col3 = st.columns([2,2,2])
         col1.metric("Total Flights", total_flights)
-        col2.metric("Avg Departure Delay", f"{avg_departure_delay:.1f} min")
-        col3.metric("Avg Arrival Delay", f"{avg_arrival_delay:.1f} min")
-        col4.metric("Avg Taxi Time", f"{avg_taxi_time:.1f} min")
-        col5.metric("Most Frequent Airline", most_frequent_airline)
-
-        # Visualization: Histogram of Delays
-        st.subheader('Distribution of Delays for this Route')
-        fig = px.histogram(route_data, x=['dep_date_delay', 'arr_date_delay'], title="Departure & Arrival Delay Distribution")
-        st.plotly_chart(fig)
+        #col2.metric("Avg Delay", f"{avg_delay:.1f} min")
+        col3.metric("Most Frequent Airline", most_frequent_airline)
 
         # Visualization: Flight Volume Over Time
         st.subheader('Flight Volume Over Time')
@@ -276,6 +267,67 @@ elif page == 'Departure-Arrival Analysis':
         daily_flights = route_data.groupby(route_data['date'].dt.date).size().reset_index(name='count')
         time_fig = px.line(daily_flights, x='date', y='count', title="Daily Flight Volume")
         st.plotly_chart(time_fig)
+
+        # Visualization: Average Total Delay Over Time
+        st.subheader('Average Total Delay Over Time')
+        route_data['date'] = pd.to_datetime(route_data['sched_dep_date'])
+        # Group by date and compute average total delay
+        daily_delay = (
+            route_data
+            .groupby(route_data['date'].dt.date)['total_delay']
+            .mean()
+            .reset_index(name='avg_total_delay')
+        )
+        fig = px.line(
+            daily_delay,
+            x='date',
+            y='avg_total_delay',
+            title="Average Total Delay per Day",
+            labels={'date': 'Date', 'avg_total_delay': 'Avg Total Delay (min)'}
+        )
+        st.plotly_chart(fig)
+
+
+        # Visualization: Histogram of Delays
+        st.subheader('Distribution of Delays for this Route')
+        fig = px.histogram(route_data, x=['Departure delay', 'Arrival delay'], title="Departure & Arrival Delay Distribution")
+        st.plotly_chart(fig)
+
+        # Visualization: Top Aircraft Types
+        st.subheader("Top Aircraft Types on This Route")
+        if 'tailnum' in route_data.columns:
+            plane_models = get_plane_model_counts(departure_airport, arrival_airport)
+            plane_model_df = pd.DataFrame(list(plane_models.items()), columns=['Plane Model', 'Count'])
+            plane_model_df = plane_model_df.nlargest(10, 'Count')
+            fig = px.bar(plane_model_df, x='Plane Model', y='Count', text='Count')
+            fig.update_traces(textposition='outside')
+            st.plotly_chart(fig)
+        else:
+            st.info("Aircraft type data is not available for this route.")
+
+        # Visualization: Top Airlines 
+        st.subheader("Top Airlines on This Route")
+        if 'carrier' in route_data.columns:
+            airline_counts = route_data['carrier'].value_counts().reset_index()
+            airline_counts.columns = ['Airline', 'Count']
+            airline_counts = airline_counts.nlargest(10, 'Count')
+
+            fig = px.bar(
+                airline_counts,
+                x='Airline',
+                y='Count',
+                text='Count',
+                title='Top Airlines by Number of Flights'
+            )
+            fig.update_traces(textposition='outside')
+            fig.update_layout(
+                xaxis_title='Airline',
+                yaxis_title='Number of Flights',
+                showlegend=False
+            )
+            st.plotly_chart(fig)
+        else:
+            st.info("Airline data is not available for this route.")
 
 
 elif page == 'Delays & Causes':
