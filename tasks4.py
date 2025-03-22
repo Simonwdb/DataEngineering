@@ -1,5 +1,5 @@
 from utilities import *
-
+from utilities import data_class
 """
 Check the table flights for missing values and think of ways to resolve them.
 """
@@ -186,6 +186,7 @@ def analyze_weather_effect_by_plane_model(top_n_models, sample_size):
       AND w.wind_speed IS NOT NULL
     LIMIT ?
     """
+    conn = data_class.conn
     df = pd.read_sql_query(query, conn, params=(sample_size,))
     
     # Ensure precipitation is numeric; fill missing with 0.
