@@ -38,7 +38,6 @@ def is_american_faa(faa_code, airports_df):
     airport_row = airports_df[airports_df['faa'] == faa_code]
 
     if airport_row.empty:
-        print(f"FAA code {faa_code} not found in the dataset.")
         return False
 
     # Get the timezone of the airport
