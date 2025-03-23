@@ -24,7 +24,7 @@ This project is an interactive Streamlit dashboard for analyzing flight data fro
 ### 1. Clone the repo
 
 ```bash
-git clone https://github.com/Simonwdb/DataEngineering  # TO DO add correct link
+git clone https://github.com/Simonwdb/DataEngineering
 cd DataEngineering
 ```
 
