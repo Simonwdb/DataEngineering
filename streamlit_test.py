@@ -314,31 +314,38 @@ elif page == 'Departure-Arrival Analysis':
         else:
             st.info("Aircraft type data is not available for this route.")
 
-        # Visualization: Top Airlines
-        st.subheader("Top Airlines on This Route")
-        if 'carrier' in route_data.columns:
-            airline_counts = route_data['carrier'].value_counts().reset_index()
-            airline_counts.columns = ['Airline', 'Count']
-            airline_counts = airline_counts.nlargest(10, 'Count')
+   # Visualization: Top Airlines
+    st.subheader("Top Airlines on This Route")
+    if 'carrier' in route_data.columns:
+        airline_counts = route_data['carrier'].value_counts().reset_index()
+        airline_counts.columns = ['carrier', 'Count']
 
-            fig = px.bar(
-                airline_counts,
-                x='Airline',
-                y='Count',
-                text='Count',
-                title='Top Airlines by Number of Flights'
-            )
-            fig.update_traces(textposition='outside')
-            fig.update_layout(
-                xaxis_title='Airline',
-                yaxis_title='Number of Flights',
-                showlegend=False
-            )
-            st.plotly_chart(fig)
-        else:
-            st.info("Airline data is not available for this route.")
+        airline_counts = pd.merge(
+            airline_counts,
+            data['airlines'],  
+            on='carrier',
+            how='left'
+        )
 
+        airline_counts = airline_counts.nlargest(10, 'Count')
 
+        fig = px.bar(
+            airline_counts,
+            x='name',    
+            y='Count',
+            text='Count',
+            title='Top Airlines by Number of Flights'
+        )
+
+        fig.update_traces(textposition='outside')
+        fig.update_layout(
+            xaxis_title='Airline',
+            yaxis_title='Number of Flights',
+            showlegend=False
+        )
+        st.plotly_chart(fig)
+    else:
+        st.info("Airline data is not available for this route.")
 
 elif page == 'Delays & Causes':
     st.header('⏳ Delays & Causes')
