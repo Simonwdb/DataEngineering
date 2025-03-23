@@ -272,6 +272,19 @@ elif page == 'Daily Flights':
     fig = plot_flight_from_nyc(day_destinations, airports_df)
     st.plotly_chart(fig)
 
+    # Add summary stats below
+    st.subheader("📊 Summary Statistics")
+    avg_dep_delay = day_df['dep_date_delay'].mean()
+    avg_arr_delay = day_df['arr_date_delay'].mean()
+    avg_taxi = day_df['taxi_time'].mean()
+    total_passengers = day_df['seats'].sum()
+ 
+    col1, col2, col3, col4 = st.columns(4)
+    col1.metric("Avg Departure Delay", f"{avg_dep_delay:.1f} min")
+    col2.metric("Avg Arrival Delay", f"{avg_arr_delay:.1f} min")
+    col3.metric("Avg Taxi Time", f"{avg_taxi:.1f} min")
+    col4.metric("Total Passengers", total_passengers)
+
 elif page == 'Aircraft Types & Speed':
     st.header('🚀 Aircraft Types & Speed')
     
