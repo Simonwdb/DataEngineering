@@ -11,54 +11,54 @@ from tasks3 import *
 # creating the data class
 from utilities import data_class
 
-# def get_dataframe_safe(data_class, query):
-#     try:
-#         return data_class.get_dataframe(query)
-#     except Exception as e:
-#         return pd.DataFrame()
+def get_dataframe_safe(data_class, query):
+    try:
+        return data_class.get_dataframe(query)
+    except Exception as e:
+        return pd.DataFrame()
 
-# def load_data():    
-#     queries = {
-#         "flights": "SELECT * FROM flights",
-#         "airports": "SELECT * FROM airports",
-#         "planes": "SELECT * FROM planes",
-#         "airlines": "SELECT * FROM airlines",
-#         "weather": "SELECT * FROM weather"
-#     }
+def load_data():    
+    queries = {
+        "flights": "SELECT * FROM flights",
+        "airports": "SELECT * FROM airports",
+        "planes": "SELECT * FROM planes",
+        "airlines": "SELECT * FROM airlines",
+        "weather": "SELECT * FROM weather"
+    }
     
-#     dataframes = {name: get_dataframe_safe(data_class, query) for name, query in queries.items()}
+    dataframes = {name: get_dataframe_safe(data_class, query) for name, query in queries.items()}
     
-#     return dataframes
+    return dataframes
 
-# def process_flights_data(flights_df, airports_df):
-#     if flights_df.empty:
-#         return flights_df
+def process_flights_data(flights_df, airports_df):
+    if flights_df.empty:
+        return flights_df
     
-#     flights_df = remove_nan_values(flights_df)
-#     remove_duplicates(flights_df)
-#     convert_time_columns(flights_df)
-#     adjust_flight_dates(flights_df)
-#     calculate_delays(flights_df)
-#     adjust_negative_delays(flights_df)
-#     check_delay_equality(flights_df)
-#     flights_df = merge_timezone_info(flights_df, airports_df)
-#     convert_arr_date_to_gmt5(flights_df)
-#     calculate_block_and_taxi_time(flights_df)
+    flights_df = remove_nan_values(flights_df)
+    remove_duplicates(flights_df)
+    convert_time_columns(flights_df)
+    adjust_flight_dates(flights_df)
+    calculate_delays(flights_df)
+    adjust_negative_delays(flights_df)
+    check_delay_equality(flights_df)
+    flights_df = merge_timezone_info(flights_df, airports_df)
+    convert_arr_date_to_gmt5(flights_df)
+    calculate_block_and_taxi_time(flights_df)
     
-#     return flights_df
+    return flights_df
 
-# # prepare the datasets
-# data = load_data()
+# prepare the datasets
+data = load_data()
 
-# flights_df = process_flights_data(data['flights'], data['airports'])
-# airports_df = data['airports']
-# planes_df = data['planes']
+flights_df = process_flights_data(data['flights'], data['airports'])
+airports_df = data['airports']
+planes_df = data['planes']
 
-# # Data wrangling for dataframes that need to be calculated once
-# flights_df['total_delay'] = flights_df['dep_date_delay'] + flights_df['arr_date_delay']
-# planes_df['speed'] = planes_df['speed'].round(2)
-# avg_speed_df = planes_df.groupby('manufacturer', as_index=False)['speed'].mean()
-# avg_speed_df.rename(columns={'speed': 'avg_speed'}, inplace=True)
+# Data wrangling for dataframes that need to be calculated once
+flights_df['total_delay'] = flights_df['dep_date_delay'] + flights_df['arr_date_delay']
+planes_df['speed'] = planes_df['speed'].round(2)
+avg_speed_df = planes_df.groupby('manufacturer', as_index=False)['speed'].mean()
+avg_speed_df.rename(columns={'speed': 'avg_speed'}, inplace=True)
 
 # Determine the minimum and maximum dates from dep_date and arr_date columns
 min_date = pd.to_datetime(flights_df['sched_dep_date'].min()).date()
