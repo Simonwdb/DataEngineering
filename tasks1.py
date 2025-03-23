@@ -17,7 +17,7 @@ def plot_airports_by_region(airports_df):
     Also color codes airports by altitude.
     """
     america_df = airports_df.copy(deep=True)
-    america_df['tzone'].fillna('Unknown', inplace=True)
+    america_df['tzone'] = america_df['tzone'].fillna('Unknown')
     america_df = america_df[america_df['tzone'].str.startswith('America')]
     fig = px.scatter_geo(
         america_df,
