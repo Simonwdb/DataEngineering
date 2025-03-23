@@ -183,10 +183,9 @@ def convert_arr_date_to_gmt5(flights_df):
         # Localize the arr_date to the destination timezone
         localized_date = processed_df.loc[indices, 'arr_date'].dt.tz_localize(tz_to_tz_string(tz))
         # Convert to GMT+5
-        processed_df.loc[indices, 'arr_date_gmt5'] = localized_date.dt.tz_convert('Etc/GMT+5')
-
-    # Remove timezone information for consistency
-    processed_df['arr_date_gmt5'] = processed_df['arr_date_gmt5'].dt.tz_localize(None)
+        gmt5_date = localized_date.dt.tz_convert('Etc/GMT+5')
+        # Remove timezone information and assign to the DataFrame
+        processed_df.loc[indices, 'arr_date_gmt5'] = gmt5_date.dt.tz_localize(None)
 
     return processed_df
 
