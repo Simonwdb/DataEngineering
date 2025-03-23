@@ -196,10 +196,19 @@ We will use taxi_time as a statistic in our dashboard.
 '''
 
 def calculate_block_and_taxi_time(flights_df):
-    flights_df['block_time'] = (flights_df['arr_date_gmt5'] - flights_df['dep_date']) / pd.Timedelta(minutes=1)
-    flights_df['taxi_time'] = np.nan
-    block_mask = flights_df['block_time'] > flights_df['air_time']
-    flights_df.loc[block_mask, 'taxi_time'] = flights_df['block_time'] - flights_df['air_time']
+    processed_df = flights_df.copy()
+
+    # Calculate block time in minutes
+    processed_df['block_time'] = (processed_df['arr_date_gmt5'] - processed_df['dep_date']) / pd.Timedelta(minutes=1)
+
+    # Initialize taxi_time with NaN
+    processed_df['taxi_time'] = np.nan
+
+    # Calculate taxi time where block time is greater than air time
+    block_mask = processed_df['block_time'] > processed_df['air_time']
+    processed_df.loc[block_mask, 'taxi_time'] = processed_df['block_time'] - processed_df['air_time']
+
+    return processed_df
 
 """
 In addition, information on the different types of planes and airlines will be
