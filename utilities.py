@@ -1,11 +1,5 @@
-import math
 import sqlite3
 import pandas as pd
-import numpy as np
-import plotly.express as px
-import matplotlib.pyplot as plt
-import plotly.graph_objects as go
-
 from datetime import datetime
 
 
