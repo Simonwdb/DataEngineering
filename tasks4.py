@@ -91,18 +91,35 @@ flight. If not, think of ways to resolve it if this is not the case.
 """
 
 def calculate_delays(flights_df):
-    flights_df.loc[:, 'dep_date_delay'] = (flights_df['dep_date'] - flights_df['sched_dep_date']) / pd.Timedelta(minutes=1)
-    flights_df.loc[:, 'arr_date_delay'] = (flights_df['arr_date'] - flights_df['sched_arr_date']) / pd.Timedelta(minutes=1)
-    flights_df.loc[:, 'total_delay'] = flights_df['dep_date_delay'] + flights_df['arr_date_delay']
+    processed_df = flights_df.copy()
+
+    # Calculate departure delay in minutes
+    processed_df['dep_date_delay'] = (processed_df['dep_date'] - processed_df['sched_dep_date']) / pd.Timedelta(minutes=1)
+
+    # Calculate arrival delay in minutes
+    processed_df['arr_date_delay'] = (processed_df['arr_date'] - processed_df['sched_arr_date']) / pd.Timedelta(minutes=1)
+
+    # Calculate total delay as the sum of departure and arrival delays
+    processed_df['total_delay'] = processed_df['dep_date_delay'] + processed_df['arr_date_delay']
+
+    return processed_df
 # A second check if the arr_date and dep_date need to be shifted an extra day. Because there are currently delays with e.g. -1100 minutes, i.e. this could mean that the arr_date and dep_date need to be shifted one day extra
 
 def adjust_negative_delays(flights_df, threshold=-600):
-    dep_delay_mask2 = flights_df['dep_date_delay'] <= threshold
-    arr_delay_mask2 = flights_df['arr_date_delay'] <= threshold
+    processed_df = flights_df.copy()
 
-    flights_df.loc[dep_delay_mask2, 'dep_date'] += pd.Timedelta(days=1)
-    flights_df.loc[arr_delay_mask2, 'arr_date'] += pd.Timedelta(days=1)
-    calculate_delays(flights_df)
+    # Identify rows where delays are below the threshold
+    dep_delay_mask2 = processed_df['dep_date_delay'] <= threshold
+    arr_delay_mask2 = processed_df['arr_date_delay'] <= threshold
+
+    # Adjust dates for identified rows
+    processed_df.loc[dep_delay_mask2, 'dep_date'] += pd.Timedelta(days=1)
+    processed_df.loc[arr_delay_mask2, 'arr_date'] += pd.Timedelta(days=1)
+
+    # Recalculate delays after adjustments
+    processed_df = calculate_delays(processed_df)
+
+    return processed_df
 
 '''
 Because there is almost no equality in the given air_time and our calculated air_time, we only compare if the data in flights is in order for the delays.
