@@ -5,25 +5,28 @@ This project is an interactive Streamlit dashboard for analyzing flight data fro
 
 ## 📁 Project Structure
 
+```
+.
 ├── Data/
 │   ├── airports.csv
 │   ├── flights_database.db
 │   └── flights_part12.pdf
 ├── main.py                  # Main Streamlit app
+├── streamlit_test.py        # Experimental dashboard version
 ├── tasks1.py                # Data preprocessing & delay calculations
-├── tasks3.py                # Visualizations (e.g. delay vs weather)
+├── tasks3.py                # Visualizations (e.g., delay vs weather)
 ├── tasks4.py                # Additional route & aircraft insights
 ├── utilities.py             # Database class and helper methods
 ├── requirements.txt         # Required Python packages
 └── README.md
-
+```
 
 ## 🚀 Getting Started
 ### 1. Clone the repo
 
 ```bash
-git clone https://github.com/your-username/nyc-flight-dashboard.git  # TO DO add correct link
-cd nyc-flight-dashboard
+git clone https://github.com/Simonwdb/DataEngineering  # TO DO add correct link
+cd DataEngineering
 ```
 
 
@@ -97,7 +100,7 @@ While wrangling and transforming the raw data from the database, the following a
 - **Weather Matching**
   - Weather data is assumed to be airport-local and timestamp-aligned; nearest weather record is joined per origin airport and flight time.
 
-These assumptions are implemented in the data preprocessing logic, primarily located in `tasks1.py` and `utilities.py`.
+These assumptions are implemented in the data preprocessing logic, primarily located in `tasks4.py`.
 
 
 ## 🔧 Built With
@@ -110,7 +113,7 @@ These assumptions are implemented in the data preprocessing logic, primarily loc
 
 ## 👨‍💻 Authors
 
-- Built by Simon de Boer (2668555), Daniël Kuiper (2688995), Levi Thé (2650081), and Pim Goederaad ()
+- Built by Simon de Boer (2668555), Daniël Kuiper (2688995), Levi Thé (2650081), and Pim Goederaad (2744585)
 - All Bachelor of Science students at Vrije Universiteit Amsterdam.
 
 ---
