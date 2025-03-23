@@ -35,7 +35,7 @@ def process_flights_data(flights_df, airports_df):
         return flights_df
     
     flights_df = remove_nan_values(flights_df)
-    remove_duplicates(flights_df)
+    flights_df = remove_duplicates(flights_df)
     convert_time_columns(flights_df)
     adjust_flight_dates(flights_df)
     calculate_delays(flights_df)
