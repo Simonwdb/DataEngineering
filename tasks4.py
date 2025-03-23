@@ -32,27 +32,37 @@ to datetime objects.
 """
 def convert_time_columns(flights_df):
     convert_cols = ['dep_time', 'sched_dep_time', 'arr_time', 'sched_arr_time']
-    
-    def convert_time(col):
+    processed_df = flights_df.copy()
+
+    for col in convert_cols:
         new_col = col.replace('time', 'date')
-        bool_mask = flights_df[col].notna()
+        bool_mask = processed_df[col].notna()
         
-        flights_df.loc[:, new_col] = np.nan
-        flights_df.loc[:, new_col] = flights_df.loc[:, new_col].astype(object)
+        # Create a temporary Series for the new column
+        temp_series = pd.Series(np.nan, index=processed_df.index, dtype='object')
         
-        flights_df.loc[bool_mask, new_col] = flights_df.loc[bool_mask, col].astype(int).astype(str).str.zfill(4)
+        # Fill the temporary Series with formatted time strings where applicable
+        temp_series[bool_mask] = (
+            processed_df.loc[bool_mask, col]
+            .astype(int)
+            .astype(str)
+            .str.zfill(4)
+        )
         
-        flights_df.loc[:, new_col] = pd.to_datetime(
-            flights_df['year'].astype(str) + '-' +
-            flights_df['month'].astype(str) + '-' +
-            flights_df['day'].astype(str) + ' ' +
-            flights_df[new_col].str[:2] + ':' +
-            flights_df[new_col].str[2:],
+        # Convert to datetime
+        temp_series = pd.to_datetime(
+            processed_df['year'].astype(str) + '-' +
+            processed_df['month'].astype(str) + '-' +
+            processed_df['day'].astype(str) + ' ' +
+            temp_series.str[:2] + ':' +
+            temp_series.str[2:],
             format='%Y-%m-%d %H:%M', errors='coerce'
         )
-    
-    for col in convert_cols:
-        convert_time(col)
+        
+        # Assign the temporary Series back to the DataFrame
+        processed_df[new_col] = temp_series
+
+    return processed_df
 
 def adjust_flight_dates(flights_df):
     # Correction for time travel: increase arr_date and sched_arr_date by 1 day if dep_date > arr_date
