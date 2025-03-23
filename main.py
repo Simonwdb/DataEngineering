@@ -1,70 +1,31 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-import numpy as np
 
 # importing the tasks file
-from tasks4 import *
-from tasks1 import *
-from tasks3 import *
-
-# creating the data class
-from utilities import data_class
-
-def get_dataframe_safe(data_class, query):
-    try:
-        return data_class.get_dataframe(query)
-    except Exception as e:
-        return pd.DataFrame()
-
-def load_data():    
-    queries = {
-        "flights": "SELECT * FROM flights",
-        "airports": "SELECT * FROM airports",
-        "planes": "SELECT * FROM planes",
-        "airlines": "SELECT * FROM airlines",
-        "weather": "SELECT * FROM weather"
-    }
-    
-    dataframes = {name: get_dataframe_safe(data_class, query) for name, query in queries.items()}
-    
-    return dataframes
-
-def process_flights_data(flights_df, airports_df):
-    if flights_df.empty:
-        return flights_df
-    
-    processed_df = flights_df.copy()
-    
-    processed_df = remove_nan_values(processed_df)
-    processed_df = remove_duplicates(processed_df)
-    processed_df = convert_time_columns(processed_df)
-    processed_df = adjust_flight_dates(processed_df)
-    processed_df = calculate_delays(processed_df)
-    processed_df = adjust_negative_delays(processed_df)
-    processed_df = check_delay_equality(processed_df)
-    processed_df = merge_timezone_info(processed_df, airports_df)
-    processed_df = convert_arr_date_to_gmt5(processed_df)
-    processed_df = calculate_block_and_taxi_time(processed_df)
-    flights_df['total_delay'] = flights_df['dep_date_delay'] + flights_df['arr_date_delay']
-    
-    return processed_df
-
-# prepare the datasets
-data = load_data()
-
-flights_df = process_flights_data(data['flights'], data['airports'])
-airports_df = data['airports']
-planes_df = data['planes']
-
-# Data wrangling for dataframes that need to be calculated once
-planes_df['speed'] = planes_df['speed'].round(2)
-avg_speed_df = planes_df.groupby('manufacturer', as_index=False)['speed'].mean()
-avg_speed_df.rename(columns={'speed': 'avg_speed'}, inplace=True)
-
-# Determine the minimum and maximum dates from dep_date and arr_date columns
-min_date = pd.to_datetime(flights_df['sched_dep_date'].min()).date()
-max_date = pd.to_datetime(flights_df['arr_date'].max()).date()
+from tasks4 import (
+    flights_df,
+    planes_df,
+    airports_df,
+    airlines_df,
+    avg_speed_df,
+    min_date,
+    max_date
+)
+from tasks1 import (
+    plot_airports_by_region,
+    plot_timezones,
+    plot_flight_from_nyc
+)
+from tasks3 import (
+    get_statistics,
+    plot_destinations,
+    get_plane_model_counts,
+    distance_vs_delay,
+    plot_top_10_delayed_airlines,
+    plot_average_speed_per_manufacturer,
+    analyze_inner_product_vs_air_time
+)
 
 # Streamlit UI
 st.set_page_config(page_title='NYC 2023 Flight Dashboard', layout='wide')
@@ -87,12 +48,12 @@ if page == 'Overview':
 
     # Add the map with airports
     st.subheader('Airports in the US')
-    airports_fig = plot_airports_by_region(data['airports'])
+    airports_fig = plot_airports_by_region(airports_df)
     st.plotly_chart(airports_fig)
 
     # Add the timezone distribution plot
     st.subheader('Distribution of Arrival Airports by Time Zone')
-    timezone_fig = plot_timezones(data['airports'])
+    timezone_fig = plot_timezones(airports_df)
     st.plotly_chart(timezone_fig)
 
     # Get the top 10 destinations based on frequency and sort them
@@ -135,7 +96,7 @@ elif page == 'Arrival Airport Comparison':
         col3.metric("Average Taxi Time", f"{airport_data['taxi_time'].mean():.1f} min")
         col4.metric("Percentage of Flights Without Delay", f"{percentage_airport_delay:.1f}%")
         
-        fig = plot_flight_from_nyc(departure, data['airports'])
+        fig = plot_flight_from_nyc(departure, airports_df)
         st.plotly_chart(fig)
 
 
@@ -243,7 +204,7 @@ elif page == 'Departure-Arrival Analysis':
         total_flights = len(route_data)
         avg_delay = route_data['total_delay'].mean()
         top_carrier = route_data['carrier'].mode()[0]
-        carrier_lookup = data['airlines'].set_index('carrier')['name'].to_dict()
+        carrier_lookup = airlines_df.set_index('carrier')['name'].to_dict()
         most_frequent_airline = carrier_lookup.get(top_carrier, top_carrier)
 
 
@@ -302,7 +263,7 @@ elif page == 'Departure-Arrival Analysis':
 
         airline_counts = pd.merge(
             airline_counts,
-            data['airlines'],  
+            airlines_df,  
             on='carrier',
             how='left'
         )
@@ -336,7 +297,7 @@ elif page == 'Delays & Causes':
        
     # Add the top 10 delayed airlines chart
     st.subheader('Top 10 Airlines with the Most Delays')
-    fig = plot_top_10_delayed_airlines(flights_df, data['airlines'])
+    fig = plot_top_10_delayed_airlines(flights_df, airlines_df)
     st.plotly_chart(fig)
 
 
