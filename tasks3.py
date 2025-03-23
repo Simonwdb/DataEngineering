@@ -595,17 +595,17 @@ def flight_wind_inner_product(flight_record):
         "inner_product": inner_product
     }
 
-def get_flight_records(limit=10000):
+def get_flight_records(limit=5_000):
     cursor = data_class.cursor
-    query = "SELECT * FROM flights LIMIT ?"
+    query = "SELECT * FROM flights ORDER BY RANDOM() LIMIT ?"
     cursor.execute(query, (limit,))
     rows = cursor.fetchall()
     columns = [desc[0] for desc in cursor.description]
     records = [dict(zip(columns, row)) for row in rows]
     return records
 
-def analyze_inner_product_vs_air_time(sample_size=10000):
-    flights = get_flight_records(sample_size)
+def analyze_inner_product_vs_air_time():
+    flights = get_flight_records()
     results = []
     for flight in flights:
         try:
