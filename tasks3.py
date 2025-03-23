@@ -1,7 +1,10 @@
-from utilities import *
-from utilities import data_class
+import numpy as np
+import plotly.express as px
+import pandas as pd
+import plotly.graph_objects as go
+import math
 
-from collections import defaultdict
+from utilities import data_class
 
 """Verify that the distances you computed in part 1 are roughly equal to the dis-
 tances in the variable distance in the table flights. If they are much oﬀ,

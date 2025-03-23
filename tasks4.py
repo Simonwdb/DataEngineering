@@ -1,4 +1,5 @@
-from utilities import *
+from datetime import datetime
+import numpy as np
 from utilities import data_class
 """
 Check the table flights for missing values and think of ways to resolve them.
