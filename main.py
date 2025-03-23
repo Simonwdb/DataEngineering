@@ -46,6 +46,7 @@ def process_flights_data(flights_df, airports_df):
     processed_df = merge_timezone_info(processed_df, airports_df)
     processed_df = convert_arr_date_to_gmt5(processed_df)
     processed_df = calculate_block_and_taxi_time(processed_df)
+    flights_df['total_delay'] = flights_df['dep_date_delay'] + flights_df['arr_date_delay']
     
     return processed_df
 
@@ -57,7 +58,6 @@ airports_df = data['airports']
 planes_df = data['planes']
 
 # Data wrangling for dataframes that need to be calculated once
-flights_df['total_delay'] = flights_df['dep_date_delay'] + flights_df['arr_date_delay']
 planes_df['speed'] = planes_df['speed'].round(2)
 avg_speed_df = planes_df.groupby('manufacturer', as_index=False)['speed'].mean()
 avg_speed_df.rename(columns={'speed': 'avg_speed'}, inplace=True)
