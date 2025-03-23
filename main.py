@@ -234,7 +234,7 @@ elif page == 'Departure-Arrival Analysis':
     )
 
     # Filter dataset based on selected airports
-    route_data = flights_df[(flights_df['origin'] == departure_airport) & (flights_df['dest'] == arrival_airport)]
+    route_data = flights_df[(flights_df['origin'] == departure_airport) & (flights_df['dest'] == arrival_airport)].copy()
 
     if route_data.empty:
         st.warning("No flights found between the selected airports.")
@@ -255,7 +255,7 @@ elif page == 'Departure-Arrival Analysis':
 
         # Visualization: Flight Volume Over Time
         st.subheader('Flight Volume Over Time')
-        route_data['date'] = pd.to_datetime(route_data['sched_dep_date'])
+        route_data.loc[:, 'date'] = pd.to_datetime(route_data['sched_dep_date'])
         daily_flights = route_data.groupby(route_data['date'].dt.date).size().reset_index(name='count')
         time_fig = px.line(daily_flights, x='date', y='count', title="Daily Flight Volume")
         time_fig.update_layout(
