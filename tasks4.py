@@ -65,18 +65,24 @@ def convert_time_columns(flights_df):
     return processed_df
 
 def adjust_flight_dates(flights_df):
+    processed_df = flights_df.copy()
+
     # Correction for time travel: increase arr_date and sched_arr_date by 1 day if dep_date > arr_date
-    time_travel_mask = flights_df['dep_date'] > flights_df['arr_date']
-    flights_df.loc[time_travel_mask, ['arr_date', 'sched_arr_date']] += pd.Timedelta(days=1)
+    time_travel_mask = processed_df['dep_date'] > processed_df['arr_date']
+    processed_df.loc[time_travel_mask, ['arr_date', 'sched_arr_date']] += pd.Timedelta(days=1)
 
     # Mask for flights before January 1, 2023 at 05:00
-    date_mask = flights_df['dep_date'] < datetime(year=2023, month=1, day=1, hour=5, minute=0)
+    date_mask = processed_df['dep_date'] < datetime(year=2023, month=1, day=1, hour=5, minute=0)
 
     # Correction for scheduled departure dates: decrease sched_dep_date by 1 day if dep_date < sched_dep_date
-    flights_df.loc[(date_mask) & (flights_df['dep_date'] < flights_df['sched_dep_date']), 'sched_dep_date'] -= pd.Timedelta(days=1)
+    sched_dep_correction_mask = (date_mask) & (processed_df['dep_date'] < processed_df['sched_dep_date'])
+    processed_df.loc[sched_dep_correction_mask, 'sched_dep_date'] -= pd.Timedelta(days=1)
 
     # Correction for scheduled arrival dates: decrease sched_arr_date by 1 day if arr_date < sched_arr_date
-    flights_df.loc[(date_mask) & (flights_df['arr_date'] < flights_df['sched_arr_date']), 'sched_arr_date'] -= pd.Timedelta(days=1)
+    sched_arr_correction_mask = (date_mask) & (processed_df['arr_date'] < processed_df['sched_arr_date'])
+    processed_df.loc[sched_arr_correction_mask, 'sched_arr_date'] -= pd.Timedelta(days=1)
+
+    return processed_df
 
 """
 Write a function that checks whether the data in flights is in order. That
