@@ -162,6 +162,8 @@ def merge_timezone_info(flights_df, airports_df):
     return flights_df
 
 def convert_arr_date_to_gmt5(flights_df):
+    processed_df = flights_df.copy()
+
     def tz_to_tz_string(tz):
         if pd.isna(tz):
             return None
@@ -170,13 +172,21 @@ def convert_arr_date_to_gmt5(flights_df):
         else:
             return f'Etc/GMT-{int(tz)}'
 
-    for tz, indices in flights_df.groupby('dest_tz').groups.items():
+    # Initialize the new column with NaT (Not a Time)
+    processed_df['arr_date_gmt5'] = pd.NaT
+
+    for tz, indices in processed_df.groupby('dest_tz').groups.items():
         if pd.isna(tz):
             continue
-        localized_date = flights_df.loc[indices, 'arr_date'].dt.tz_localize(tz_to_tz_string(tz))
-        flights_df.loc[indices, 'arr_date_gmt5'] = localized_date.dt.tz_convert('Etc/GMT+5')
+        # Localize the arr_date to the destination timezone
+        localized_date = processed_df.loc[indices, 'arr_date'].dt.tz_localize(tz_to_tz_string(tz))
+        # Convert to GMT+5
+        processed_df.loc[indices, 'arr_date_gmt5'] = localized_date.dt.tz_convert('Etc/GMT+5')
 
-    flights_df['arr_date_gmt5'] = flights_df['arr_date_gmt5'].dt.tz_localize(None)
+    # Remove timezone information for consistency
+    processed_df['arr_date_gmt5'] = processed_df['arr_date_gmt5'].dt.tz_localize(None)
+
+    return processed_df
 
 '''
 Because the air_time that is given in the dataset is sparse when equal to our calculated air_time, which is the difference between dep_date and arr_date_gmt5. 
