@@ -37,12 +37,12 @@ def convert_time_columns(flights_df):
         new_col = col.replace('time', 'date')
         bool_mask = flights_df[col].notna()
         
-        flights_df[new_col] = np.nan
-        flights_df[new_col] = flights_df[new_col].astype(object)
+        flights_df.loc[:, new_col] = np.nan
+        flights_df.loc[:, new_col] = flights_df.loc[:, new_col].astype(object)
         
         flights_df.loc[bool_mask, new_col] = flights_df.loc[bool_mask, col].astype(int).astype(str).str.zfill(4)
         
-        flights_df[new_col] = pd.to_datetime(
+        flights_df.loc[:, new_col] = pd.to_datetime(
             flights_df['year'].astype(str) + '-' +
             flights_df['month'].astype(str) + '-' +
             flights_df['day'].astype(str) + ' ' +
@@ -75,9 +75,9 @@ flight. If not, think of ways to resolve it if this is not the case.
 """
 
 def calculate_delays(flights_df):
-    flights_df['dep_date_delay'] = (flights_df['dep_date'] - flights_df['sched_dep_date']) / pd.Timedelta(minutes=1)
-    flights_df['arr_date_delay'] = (flights_df['arr_date'] - flights_df['sched_arr_date']) / pd.Timedelta(minutes=1)
-    flights_df['total_delay'] = flights_df['dep_date_delay'] + flights_df['arr_date_delay'] #total delay
+    flights_df.loc[:, 'dep_date_delay'] = (flights_df['dep_date'] - flights_df['sched_dep_date']) / pd.Timedelta(minutes=1)
+    flights_df.loc[:, 'arr_date_delay'] = (flights_df['arr_date'] - flights_df['sched_arr_date']) / pd.Timedelta(minutes=1)
+    flights_df.loc[:, 'total_delay'] = flights_df['dep_date_delay'] + flights_df['arr_date_delay']
 # A second check if the arr_date and dep_date need to be shifted an extra day. Because there are currently delays with e.g. -1100 minutes, i.e. this could mean that the arr_date and dep_date need to be shifted one day extra
 
 def adjust_negative_delays(flights_df, threshold=-600):
