@@ -95,7 +95,7 @@ Because there is almost no equality in the given air_time and our calculated air
 def check_delay_equality(flights_df):
     dep_delay_mask = flights_df['dep_delay'] == flights_df['dep_date_delay']
     arr_delay_mask = flights_df['arr_delay'] == flights_df['arr_date_delay']
-    flights_df['delay_eq'] = False
+    flights_df.loc[:, 'delay_eq'] = False
     flights_df.loc[(dep_delay_mask) & (arr_delay_mask), 'delay_eq'] = True
 
 """
