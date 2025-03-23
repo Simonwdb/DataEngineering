@@ -13,7 +13,6 @@ import plotly.express as px
 import numpy as np
 
 # importing the tasks file
-from utilities import *
 from tasks4 import *
 from tasks1 import *
 from tasks3 import *
