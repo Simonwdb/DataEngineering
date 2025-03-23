@@ -1,7 +1,10 @@
-from utilities import *
+import numpy as np
+import plotly.express as px
+import pandas as pd
+import plotly.graph_objects as go
+import math
 
-data_class = Data()
-from collections import defaultdict
+from utilities import data_class
 
 """Verify that the distances you computed in part 1 are roughly equal to the dis-
 tances in the variable distance in the table flights. If they are much oﬀ,
@@ -340,41 +343,26 @@ def distance_vs_delay():
 
     return fig
 
-def plot_delay_vs_visibility(flights_df, weather_df):
-    # Calculate total delay for each flight
-    flights_df['total_delay'] = flights_df['dep_date_delay'] + flights_df['arr_date_delay']
-
-    # Merge flights_df with weather_df on time_hour
-    merged_df = flights_df.merge(weather_df, on='time_hour', how='inner')
-
-    # Use the correct column name for origin (e.g., 'origin_x' or 'origin_y')
-    origin_column = 'origin_x' if 'origin_x' in merged_df.columns else 'origin'
-
-    # Categorize visibility into groups for better interpretation
-    bins = [0, 1, 3, 5, 10]
-    labels = ['Very Poor (0-1 miles)', 'Poor (1-3 miles)', 'Moderate (3-5 miles)', 'Good (5-10 miles)']
-    merged_df['visibility_category'] = pd.cut(merged_df['visib'], bins=bins, labels=labels)
-
+def plot_delay_vs_visibility(merged_df):
     # Define the desired order for the x-axis
     category_order = ['Good (5-10 miles)', 'Moderate (3-5 miles)', 'Poor (1-3 miles)', 'Very Poor (0-1 miles)']
 
-    # Create the boxplot with colors and separate boxes for each origin
+    # Create the boxplot without distinguishing by origin
     fig = px.box(
         merged_df,
         x='visibility_category',
         y='total_delay',
-        color=origin_column,
-        title='Flight Delays vs Visibility Conditions by Origin Airport',
-        labels={'visibility_category': 'Visibility', 'total_delay': 'Total Delay (minutes)', origin_column: 'Origin Airport'},
+        title='Flight Delays vs Visibility Conditions',
+        labels={'visibility_category': 'Visibility', 'total_delay': 'Total Delay (minutes)'},
         category_orders={'visibility_category': category_order},
-        color_discrete_sequence=px.colors.qualitative.Pastel
+        color_discrete_sequence=['blue']  # Optioneel: kies een specifieke kleur
     )
 
     # Update layout for better readability
     fig.update_layout(
         xaxis_title='Visibility Conditions',
         yaxis_title='Total Delay (minutes)',
-        showlegend=True,
+        showlegend=False,  # Legenda uitschakelen
         height=600,
         width=1000,
         template='plotly_white'
@@ -420,6 +408,25 @@ def fill_speed():
         cursor.execute(update_query, (avg_speed, tailnum))
 
     conn.commit()  # Save changes to database
+
+def plot_average_speed_per_manufacturer(avg_speed_df):
+    fig = px.bar(
+        avg_speed_df,
+        x='manufacturer',
+        y='avg_speed',
+        title='Average Speed per Aircraft Manufacturer',
+        labels={'avg_speed': 'Average Speed (km/h)', 'manufacturer': 'Manufacturer'},
+        text_auto=True
+    )
+    fig.update_traces(textposition='outside')
+    fig.update_layout(
+        xaxis_title='Manufacturer',
+        yaxis_title='Average Speed (km/h)',
+        showlegend=False,
+        height=600,
+        width=1000
+    )
+    return fig
 
 """The wind direction is given in weather in degrees. Compute for each airport
 the direction the plane follows when flying there from New York."""

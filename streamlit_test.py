@@ -1,25 +1,15 @@
-"""
-
-For now I created a example dashboard with dummy data. To see how it looks, and works. When this works, we can use our data in main.py.
-Best to make main.py into sort like file as this example.
-
-Notes:
-- Add a plot that shows the graph between the distance from the origin to the destination.
-"""
-
 import streamlit as st
 import pandas as pd
 import plotly.express as px
 import numpy as np
 
 # importing the tasks file
-from utilities import *
 from tasks4 import *
 from tasks1 import *
 from tasks3 import *
 
 # creating the data class
-data_class = Data()
+from utilities import data_class
 
 def get_dataframe_safe(data_class, query):
     try:
@@ -62,30 +52,17 @@ data = load_data()
 
 flights_df = process_flights_data(data['flights'], data['airports'])
 airports_df = data['airports']
+planes_df = data['planes']
 
-# Dummy data
-def generate_dummy_data():
-    np.random.seed(42)
-    airports = ['JFK', 'LGA', 'EWR', 'SFO', 'LAX', 'ORD', 'ATL', 'MIA']
-    airlines = ['Delta', 'American', 'United', 'JetBlue', 'Southwest']
-    
-    flights = pd.DataFrame({
-        'Flight ID': range(1, 201),
-        'Departure Airport': np.random.choice(airports[:3], 200),
-        'Arrival Airport': np.random.choice(airports[3:], 200),
-        'Airline': np.random.choice(airlines, 200),
-        'Distance (km)': np.random.randint(300, 5000, 200),
-        'Departure Delay (min)': np.random.randint(-10, 120, 200),
-        'Arrival Delay (min)': np.random.randint(-10, 150, 200),
-        'Taxi Time (min)': np.random.randint(5, 40, 200),
-        'Passengers': np.random.randint(50, 300, 200),
-        'Departure Time': pd.date_range('2023-01-01', periods=200, freq='h').time,
-        'Weather Condition': np.random.choice(['Clear', 'Rain', 'Storm', 'Foggy'], 200)
-    })
-    return flights
+# Data wrangling for dataframes that need to be calculated once
+flights_df['total_delay'] = flights_df['dep_date_delay'] + flights_df['arr_date_delay']
+planes_df['speed'] = planes_df['speed'].round(2)
+avg_speed_df = planes_df.groupby('manufacturer', as_index=False)['speed'].mean()
+avg_speed_df.rename(columns={'speed': 'avg_speed'}, inplace=True)
 
-flights_data = generate_dummy_data()
-
+# Determine the minimum and maximum dates from dep_date and arr_date columns
+min_date = pd.to_datetime(flights_df['sched_dep_date'].min()).date()
+max_date = pd.to_datetime(flights_df['arr_date'].max()).date()
 
 # Streamlit UI
 st.set_page_config(page_title='NYC 2023 Flight Dashboard', layout='wide')
@@ -167,9 +144,7 @@ elif page == 'Departure Airport Comparison':
     departure = st.selectbox('Select departure airport:', flights_df['origin'].unique())
     departure_name = airports_df[airports_df['faa'] == departure]['name'].values[0]
 
-    # Determine the minimum and maximum dates from dep_date and arr_date columns
-    min_date = pd.to_datetime(flights_df['sched_dep_date'].min()).date()
-    max_date = pd.to_datetime(flights_df['arr_date'].max()).date()
+
 
     # Date input with a calendar widget
     selected_date = st.date_input(
@@ -353,75 +328,67 @@ elif page == 'Delays & Causes':
     st.subheader('Correlation between Distance vs Arrival Delay')
     corr_fig = distance_vs_delay()
     st.plotly_chart(corr_fig)
-    
-    # Add the enhanced boxplot for delays vs visibility by origin
-    st.subheader('Flight Delays vs Visibility Conditions by Origin Airport')
-    fig = plot_delay_vs_visibility(flights_df, data['weather'])
-    st.plotly_chart(fig)
-    
+       
     # Add the top 10 delayed airlines chart
     st.subheader('Top 10 Airlines with the Most Delays')
     fig = plot_top_10_delayed_airlines(flights_df, data['airlines'])
     st.plotly_chart(fig)
 
-    # TO-DO:
-    # plot een grafiek met daarin de vliegvelden met het hoogste delay, en vliegvelden met het laagste delay (gemiddeld)
 
 elif page == 'Daily Flights':
     st.header('📅 Flights on a Specific Day')
-
-    date = st.date_input('Select a date', pd.to_datetime('2023-01-01'))
-
-    # 🧠 Convert and filter by selected date if you want real-time filtering
-    # For now still sampling from dummy data
-    day_flights = flights_data.sample(10)
-
-    # Show flight stats
-    st.subheader("✈️ Sample Flights on This Day")
-    st.dataframe(day_flights[['Departure Airport', 'Arrival Airport', 'Airline',
-                              'Departure Delay (min)', 'Arrival Delay (min)',
-                              'Taxi Time (min)', 'Passengers']])
-
-    # Merge with airport coordinates
-    merged = pd.merge(
-        day_flights,
-        airports_df,
-        left_on='Arrival Airport',
-        right_on='faa',
-        how='left'
+    # Date input with a calendar widget
+    selected_date = st.date_input(
+        'Select a date:',
+        min_value=min_date,
+        max_value=max_date,
+        value=min_date  # Default to the earliest date
     )
+    
+    day_df = flights_df[flights_df['sched_dep_date'].dt.date== selected_date]
+    day_destinations = day_df['dest'].unique()
+    day_num_destinations = day_df['dest'].nunique()
 
-    # Plot destinations
-    st.subheader("🌍 Destinations of the Day")
-    fig = px.scatter_geo(
-        merged,
-        lat='lat',
-        lon='lon',
-        hover_name='name',
-        title='Destinations of the Day',
-        projection='natural earth'
-    )
+    # Calculate the amount of passengers that can travel on selected_date
+    day_df = day_df.merge(planes_df[['tailnum', 'seats']], on='tailnum', how='left')
+    passenger_per_dest_df = day_df.groupby('dest')['seats'].sum().reset_index()
+    passenger_per_dest_df = passenger_per_dest_df.sort_values(by='seats', ascending=False)
+    passenger_amount = passenger_per_dest_df['seats'].sum()
+    flights_amount = day_df['flight'].nunique()
+
+    # Find the most popular destination (the one with the most passengers)
+    favorite_destination = passenger_per_dest_df.iloc[0]['dest'] if not passenger_per_dest_df.empty else "N/A"
+    favorite_destination_passengers = passenger_per_dest_df.iloc[0]['seats'] if not passenger_per_dest_df.empty else 0
+
+    col1, col2, col3, col4, col5 = st.columns(5)
+    col1.metric("Total Flights", flights_amount)
+    col2.metric("Total Passengers", int(passenger_amount))
+    col3.metric("Unique Destinations", day_num_destinations)
+    col4.metric("Top Destination", favorite_destination)
+    col5.metric("Passengers to Top Destination", int(favorite_destination_passengers))
+
+    # Plot the map with the multiple destinations
+    st.subheader(f"Destinations from NYC on {selected_date}")
+    fig = plot_flight_from_nyc(day_destinations, airports_df)
     st.plotly_chart(fig)
 
     # Add summary stats below
     st.subheader("📊 Summary Statistics")
-    avg_dep_delay = day_flights['Departure Delay (min)'].mean()
-    avg_arr_delay = day_flights['Arrival Delay (min)'].mean()
-    avg_taxi = day_flights['Taxi Time (min)'].mean()
-    total_passengers = day_flights['Passengers'].sum()
-
+    avg_dep_delay = day_df['dep_date_delay'].mean()
+    avg_arr_delay = day_df['arr_date_delay'].mean()
+    avg_taxi = day_df['taxi_time'].mean()
+    total_passengers = day_df['seats'].sum()
+ 
     col1, col2, col3, col4 = st.columns(4)
     col1.metric("Avg Departure Delay", f"{avg_dep_delay:.1f} min")
     col2.metric("Avg Arrival Delay", f"{avg_arr_delay:.1f} min")
     col3.metric("Avg Taxi Time", f"{avg_taxi:.1f} min")
     col4.metric("Total Passengers", total_passengers)
 
-
 elif page == 'Aircraft Types & Speed':
     st.header('🚀 Aircraft Types & Speed')
     
-    flights_data['Speed (km/h)'] = flights_data['Distance (km)'] / (np.random.randint(1, 6, len(flights_data)))
-    fig = px.histogram(flights_data, x='Speed (km/h)', title='Average Speed per Aircraft')
+    fig = plot_average_speed_per_manufacturer(avg_speed_df)
     st.plotly_chart(fig)
 
 elif page == 'Weather Impact':
