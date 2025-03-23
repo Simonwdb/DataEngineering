@@ -34,18 +34,20 @@ def process_flights_data(flights_df, airports_df):
     if flights_df.empty:
         return flights_df
     
-    flights_df = remove_nan_values(flights_df)
-    flights_df = remove_duplicates(flights_df)
-    convert_time_columns(flights_df)
-    adjust_flight_dates(flights_df)
-    calculate_delays(flights_df)
-    adjust_negative_delays(flights_df)
-    check_delay_equality(flights_df)
-    flights_df = merge_timezone_info(flights_df, airports_df)
-    convert_arr_date_to_gmt5(flights_df)
-    calculate_block_and_taxi_time(flights_df)
+    processed_df = flights_df.copy()
     
-    return flights_df
+    processed_df = remove_nan_values(processed_df)
+    processed_df = remove_duplicates(processed_df)
+    processed_df = convert_time_columns(processed_df)
+    processed_df = adjust_flight_dates(processed_df)
+    processed_df = calculate_delays(processed_df)
+    processed_df = adjust_negative_delays(processed_df)
+    processed_df = check_delay_equality(processed_df)
+    processed_df = merge_timezone_info(processed_df, airports_df)
+    processed_df = convert_arr_date_to_gmt5(processed_df)
+    processed_df = calculate_block_and_taxi_time(processed_df)
+    
+    return processed_df
 
 # prepare the datasets
 data = load_data()
