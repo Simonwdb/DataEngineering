@@ -189,6 +189,11 @@ def convert_arr_date_to_gmt5(flights_df):
 
     return processed_df
 
+def calculate_total_delay(flights_df):
+    processed_df = flights_df.copy()
+    processed_df['total_delay'] = processed_df['dep_date_delay'] + processed_df['arr_date_delay']
+    return processed_df
+
 '''
 Because the air_time that is given in the dataset is sparse when equal to our calculated air_time, which is the difference between dep_date and arr_date_gmt5. 
 We made the assumption that our calculated air_time would be so called block_time. Which could be seen as the time difference when the brake blocks are on (arr_date_gmt5) and brake blocks are off (dep_date).
@@ -283,3 +288,60 @@ def analyze_weather_effect_by_plane_model(top_n_models, sample_size):
         plt.show()
     
     return df
+
+# Added the data wrangling from main.py in this file
+def get_dataframe_safe(data_class, query):
+    try:
+        return data_class.get_dataframe(query)
+    except Exception as e:
+        return pd.DataFrame()
+
+def load_data():    
+    queries = {
+        "flights": "SELECT * FROM flights",
+        "airports": "SELECT * FROM airports",
+        "planes": "SELECT * FROM planes",
+        "airlines": "SELECT * FROM airlines",
+        "weather": "SELECT * FROM weather"
+    }
+    
+    dataframes = {name: get_dataframe_safe(data_class, query) for name, query in queries.items()}
+    
+    return dataframes
+
+def process_flights_data(flights_df, airports_df):
+    if flights_df.empty:
+        return flights_df
+    
+    processed_df = flights_df.copy()
+    
+    processed_df = remove_nan_values(processed_df)
+    processed_df = remove_duplicates(processed_df)
+    processed_df = convert_time_columns(processed_df)
+    processed_df = adjust_flight_dates(processed_df)
+    processed_df = calculate_delays(processed_df)
+    processed_df = adjust_negative_delays(processed_df)
+    processed_df = check_delay_equality(processed_df)
+    processed_df = merge_timezone_info(processed_df, airports_df)
+    processed_df = convert_arr_date_to_gmt5(processed_df)
+    processed_df = calculate_block_and_taxi_time(processed_df)
+    processed_df = calculate_total_delay(processed_df)
+    
+    return processed_df
+
+# # prepare the datasets
+data = load_data()
+
+flights_df = process_flights_data(data['flights'], data['airports'])
+airports_df = data['airports']
+planes_df = data['planes']
+airlines_df = data['airlines']
+
+# Data wrangling for dataframes that need to be calculated once
+planes_df['speed'] = planes_df['speed'].round(2)
+avg_speed_df = planes_df.groupby('manufacturer', as_index=False)['speed'].mean()
+avg_speed_df.rename(columns={'speed': 'avg_speed'}, inplace=True)
+
+# Determine the minimum and maximum dates from dep_date and arr_date columns
+min_date = pd.to_datetime(flights_df['sched_dep_date'].min()).date()
+max_date = pd.to_datetime(flights_df['arr_date'].max()).date()
