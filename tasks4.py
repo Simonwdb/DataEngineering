@@ -23,7 +23,8 @@ appears multiple times.
 
 def remove_duplicates(flights_df):
     unique_columns = ['year', 'month', 'day', 'flight', 'dep_time', 'arr_time', 'origin', 'dest']
-    flights_df.drop_duplicates(subset=unique_columns, keep='first', inplace=True)
+    unique_df = flights_df.drop_duplicates(subset=unique_columns, keep='first')
+    return unique_df
     
 """
 Convert the (schedueled and actual) arrival departure and departure moments
