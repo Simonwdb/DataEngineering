@@ -126,10 +126,19 @@ Because there is almost no equality in the given air_time and our calculated air
 '''
 
 def check_delay_equality(flights_df):
-    dep_delay_mask = flights_df['dep_delay'] == flights_df['dep_date_delay']
-    arr_delay_mask = flights_df['arr_delay'] == flights_df['arr_date_delay']
-    flights_df.loc[:, 'delay_eq'] = False
-    flights_df.loc[(dep_delay_mask) & (arr_delay_mask), 'delay_eq'] = True
+    processed_df = flights_df.copy()
+
+    # Create masks for matching delays
+    dep_delay_mask = processed_df['dep_delay'] == processed_df['dep_date_delay']
+    arr_delay_mask = processed_df['arr_delay'] == processed_df['arr_date_delay']
+
+    # Initialize the 'delay_eq' column to False
+    processed_df['delay_eq'] = False
+
+    # Set 'delay_eq' to True where both delays match
+    processed_df.loc[(dep_delay_mask) & (arr_delay_mask), 'delay_eq'] = True
+
+    return processed_df
 
 """
 Create a column that contains the local arrival time, incorporating the time
