@@ -240,7 +240,10 @@ elif page == 'Departure-Arrival Analysis':
         # Route statistics
         total_flights = len(route_data)
         avg_delay = route_data['total_delay'].mean()
-        most_frequent_airline = route_data['carrier'].mode()[0]  # Get the most common airline
+        top_carrier = route_data['carrier'].mode()[0]
+        carrier_lookup = data['airlines'].set_index('carrier')['name'].to_dict()
+        most_frequent_airline = carrier_lookup.get(top_carrier, top_carrier)
+
 
         # Display metrics
         col1, col2, col3 = st.columns([2, 2, 2])
