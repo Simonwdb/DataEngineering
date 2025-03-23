@@ -1,5 +1,7 @@
 from datetime import datetime
 import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
 from utilities import data_class
 """
 Check the table flights for missing values and think of ways to resolve them.
@@ -215,9 +217,6 @@ In addition, information on the different types of planes and airlines will be
 important. Consider studying what the effect of the wind or precipitation is on
 different plane types.
 """
-
-import pandas as pd
-import matplotlib.pyplot as plt
 
 def analyze_weather_effect_by_plane_model(top_n_models, sample_size):
     query = """
